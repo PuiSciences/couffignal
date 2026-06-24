@@ -148,7 +148,7 @@
     <!-- Script -->
     <script>
         // Charge les données depuis le fichier JSON
-        fetch('data/salles.json')
+        fetch('https://puisciences.github.io/couffignal/data/salles.json')
             .then(response => response.json())
             .then(salles => {
                 window.salles = salles;
