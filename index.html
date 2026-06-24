@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Produits Couffignal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --charcoal: #1F2426;
+            --charcoal-2: #2A3133;
+            --paper: #F4F1EA;
+            --grey: #BEBEBE;
+            --grey-liht: #D3D3D3;
+            --steel: #3D5A73;
+            --yellow: #FFC857;
+            --line: #D9D4C7;
+            --ink: #1F2426;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 16px;
+            background-color: var(--charcoal);
+            background-image:
+                repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 14px);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--charcoal);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin: 8px 0 4px;
+        }
+
+        h1::before {
+            content: "";
+            display: block;
+            width: 36px;
+            height: 4px;
+            background: var(--orange);
+            margin: 0 auto 12px;
+        }
+
+        h3 {
+            color: #8A9296;
+            text-align: center;
+            font-style: normal;
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h3 img {
+            max-width: 140px;
+            opacity: 0.85;
+            filter: grayscale(1) brightness(1.6);
+            margin-top: 8px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #3A4244;
+            margin: 16px 0;
+        }
+
+        .container {
+            background-color: var(--paper);
+            padding: 20px 16px 24px;
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            border-top: 4px solid var(--orange);
+        }
+
+        h2 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-size: 1.05rem;
+            color: var(--charcoal);
+            border-bottom: 2px solid var(--charcoal);
+            padding-bottom: 8px;
+            margin-top: 28px;
+        }
+
+        #scanner-container {
+            margin: 18px 0;
+            text-align: center;
+            position: relative;
+            padding: 10px;
+        }
+
+        #scanner-container::before,
+        #scanner-container::after {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-color: var(--orange);
+            top: 6px;
+        }
+
+        #scanner-container::before {
+            left: 6px;
+            border-top: 3px solid var(--orange);
+            border-left: 3px solid var(--orange);
+        }
+
+        #scanner-container::after {
+            right: 6px;
+            border-top: 3px solid var(--orange);
+            border-right: 3px solid var(--orange);
+        }
+
+        #scanner {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            background: #0c0e0f;
+            border: 2px solid var(--charcoal);
+            border-radius: 2px;
+        }
+
+        #scanner-container button {
+            margin: 12px 6px 0;
+        }
+
+        #result {
+            margin: 16px 0;
+            padding: 12px 14px;
+            background-color: #EAF1F5;
+            border-left: 4px solid var(--steel);
+            border-radius: 2px;
+            display: none;
+            font-size: 0.92rem;
+            color: var(--charcoal);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            border: none;
+            border-bottom: 1px solid var(--line);
+            padding: 10px 6px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--charcoal);
+            color: var(--paper);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.06em;
+        }
+
+        td:first-child, td:nth-child(4) {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--steel);
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #ECE8DD;
+        }
+
+        input[type="number"] {
+            width: 64px;
+            padding: 6px 4px;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid #B9C2C6;
+            border-radius: 2px;
+            background: #fff;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 2px rgba(255,107,53,0.25);
+        }
+
+        button {
+            background-color: var(--steel);
+            color: var(--paper);
+            border: none;
+            padding: 11px 18px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 500;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background-color: #2D4357;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #C9C3B5;
+            color: #8a857a;
+            cursor: not-allowed;
+        }
+
+        #startScanButton {
+            background-color: var(--grey-liht);
+        }
+
+        #startScanButton:hover {
+            background-color: var(--grey);
+        }
+
+        #exportButton {
+            background-color: var(--yellow);
+            color: var(--charcoal);
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        #exportButton:hover {
+            background-color: #F2B33D;
+        }
+
+        .error {
+            color: #C0392B;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des Produits</h1>
+		<hr>
+
+        <div id="scanner-container">
+            <video id="scanner" autoplay playsinline muted></video><br/>
+            <button id="startScanButton">Démarrer le scan</button>
+            <button id="stopScanButton" disabled>Arrêter le scan</button>
+        </div>
+
+        <div id="result"></div>
+
+        <h2>Produits scannés</h2>
+        <table id="productsTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Nlle quantité</th>
+					<th>Réserve</th>
+                    <th>Nlle réserve</th>
+                </tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+        </table>
+		<hr>
+
+        <button id="exportButton">Exporter la MAJ</button>
+    </div>
+	<h3><img src="https://lyc-couffignal-strasbourg.site.ac-strasbourg.fr/public/images/logo2.png"  />
+	</h3>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script>
+        // Variables globales
+        let scannerStream = null;
+        let scannedProducts = JSON.parse(localStorage.getItem('scannedProducts')) || [];
+
+        // DOM Elements
+        const scanner = document.getElementById('scanner');
+        const startScanButton = document.getElementById('startScanButton');
+        const stopScanButton = document.getElementById('stopScanButton');
+        const resultDiv = document.getElementById('result');
+        const productsTableBody = document.getElementById('productsTableBody');
+        const exportButton = document.getElementById('exportButton');
+
+        // Démarrer le scan
+        startScanButton.addEventListener('click', startScanning);
+        stopScanButton.addEventListener('click', stopScanning);
+        exportButton.addEventListener('click', exportToJSON);
+
+        // Charger les produits déjà scannés
+        loadScannedProducts();
+
+        // Fonction pour démarrer le scan
+        function startScanning() {
+            resultDiv.style.display = 'none';
+
+            // Vérification du contexte sécurisé (HTTPS ou localhost obligatoire)
+            const isSecure = window.isSecureContext;
+            if (!isSecure) {
+                resultDiv.innerHTML = "<strong>Erreur : page non sécurisée.</strong><br>" +
+                    "L'accès à la caméra n'est autorisé que sur une page ouverte en <code>https://</code> " +
+                    "(ou en local sur <code>localhost</code>). Cette page semble ouverte directement " +
+                    "depuis un fichier (<code>" + window.location.protocol + "</code>), ce qui bloque la caméra. " +
+                    "Hébergez ce fichier (ex : Netlify, GitHub Pages) puis ouvrez-le via une URL https://.";
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            if (typeof jsQR !== 'function') {
+                resultDiv.textContent = "Erreur : la bibliothèque de lecture de QR code (jsQR) n'a pas pu se charger. Vérifiez votre connexion internet ou désactivez un éventuel bloqueur de publicités, puis rechargez la page.";
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                resultDiv.textContent = "Erreur : votre navigateur ne supporte pas l'accès à la caméra (getUserMedia indisponible).";
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            startScanButton.disabled = true;
+            stopScanButton.disabled = false;
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    scannerStream = stream;
+                    scanner.srcObject = stream;
+
+                    // La vidéo a l'attribut autoplay : il se peut que les métadonnées
+                    // soient déjà chargées avant qu'on attache l'écouteur ci-dessous.
+                    // On vérifie donc d'abord le readyState pour éviter de manquer l'événement.
+                    const startLoop = () => {
+                        scanner.play();
+                        requestAnimationFrame(scanQRCode);
+                    };
+
+                    if (scanner.readyState >= 1) {
+                        // HAVE_METADATA ou plus : les dimensions sont déjà disponibles
+                        startLoop();
+                    } else {
+                        scanner.onloadedmetadata = startLoop;
+                    }
+                })
+                .catch(err => {
+                    console.error("Erreur d'accès à la caméra :", err);
+                    let message = "Erreur : Impossible d'accéder à la caméra. (" + err.name + ")";
+                    if (err.name === "NotAllowedError") {
+                        message += "<br>La permission caméra a été refusée. Vérifiez les réglages de permissions de votre navigateur pour ce site.";
+                    } else if (err.name === "NotFoundError") {
+                        message += "<br>Aucune caméra n'a été détectée sur cet appareil.";
+                    } else if (err.name === "NotReadableError") {
+                        message += "<br>La caméra est peut-être déjà utilisée par une autre application.";
+                    }
+                    resultDiv.innerHTML = message;
+                    resultDiv.style.display = 'block';
+                    startScanButton.disabled = false;
+                    stopScanButton.disabled = true;
+                });
+        }
+
+        // Fonction pour arrêter le scan
+        function stopScanning() {
+            if (scannerStream) {
+                scannerStream.getTracks().forEach(track => track.stop());
+                scanner.srcObject = null;
+                scannerStream = null;
+            }
+            startScanButton.disabled = false;
+            stopScanButton.disabled = true;
+        }
+
+        // Fonction pour scanner le QR code en continu
+        function scanQRCode() {
+            if (!scannerStream) {
+                return;
+            }
+
+            try {
+                if (!scanner.videoWidth || !scanner.videoHeight) {
+                    // La vidéo n'est pas encore prête, on réessaie à la prochaine frame
+                    requestAnimationFrame(scanQRCode);
+                    return;
+                }
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d', { willReadFrequently: true });
+                canvas.width = scanner.videoWidth;
+                canvas.height = scanner.videoHeight;
+                context.drawImage(scanner, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                if (code) {
+                    stopScanning();
+                    processQRCode(code.data);
+                } else {
+                    requestAnimationFrame(scanQRCode);
+                }
+            } catch (e) {
+                console.error("Erreur pendant le scan :", e);
+                resultDiv.textContent = "Erreur pendant le scan : " + e.message;
+                resultDiv.style.display = 'block';
+                requestAnimationFrame(scanQRCode);
+            }
+        }
+
+        // Fonction pour traiter le QR code scanné
+        function processQRCode(qrData) {
+            try {
+                const product = JSON.parse(qrData);
+                if (product.ID && product["Nom du produit"] !== undefined) {
+                    // Vérifier si le produit est déjà scanné
+                    const existingIndex = scannedProducts.findIndex(p => p.ID === product.ID);
+                    if (existingIndex === -1) {
+                        // Ajouter le produit avec une nouvelle quantité par défaut
+                        scannedProducts.push({
+                            ID: product.ID,
+                            Nom: product["Nom du produit"],
+                            NouvelleQuantite: product["Quantité entamée"] || 0,
+							Reserve: product["Réserve"] || 0,
+							NouvelleReserve: product["Réserve"] || 0
+                        });
+                    } else {
+                        resultDiv.textContent = "Ce produit a déjà été scanné.";
+                        resultDiv.style.display = 'block';
+                        return;
+                    }
+
+                    // Sauvegarder dans le localStorage
+                    localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts));
+
+                    // Mettre à jour le tableau
+                    loadScannedProducts();
+
+                    resultDiv.textContent = `Produit scanné : ${product["Nom du produit"]}`;
+                    resultDiv.style.display = 'block';
+                } else {
+                    resultDiv.textContent = "QR code invalide : données manquantes.";
+                    resultDiv.style.display = 'block';
+                }
+            } catch (e) {
+                resultDiv.textContent = "Erreur : QR code non valide (format JSON attendu).";
+                resultDiv.style.display = 'block';
+                console.error(e);
+            }
+        }
+
+        // Fonction pour charger les produits scannés dans le tableau
+        function loadScannedProducts() {
+            productsTableBody.innerHTML = '';
+            scannedProducts.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.ID}</td>
+                    <td>${product.Nom}</td>
+                    <td>
+                        <input type="number"
+                               value="${product.NouvelleQuantite}"
+                               data-id="${product.ID}"
+                               class="quantity-input">
+                    </td>
+					    <td>${product.Reserve}</td>
+                    <td>
+                        <input type="number"
+                               value="${product.NouvelleReserve}"
+                               data-id="${product.ID}"
+                               class="quantity-input">
+                    </td>
+                `;
+                productsTableBody.appendChild(row);
+            });
+
+            // Ajouter des écouteurs d'événements pour les champs de quantité
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    const newQuantity = parseInt(this.value);
+                    const product = scannedProducts.find(p => p.ID === id);
+                    if (product) {
+                        product.NouvelleQuantite = newQuantity;
+                        localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts));
+                    }
+                });
+            });
+        }
+
+        // Fonction pour exporter en JSON
+        function exportToJSON() {
+            if (scannedProducts.length === 0) {
+                resultDiv.textContent = "Aucun produit scanné à exporter.";
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            // Créer un objet avec uniquement ID et NouvelleQuantite
+            const exportData = scannedProducts.map(product => ({
+                ID: product.ID,
+                NouvelleQuantite: product.NouvelleQuantite
+            }));
+
+            // Convertir en JSON
+            const jsonData = JSON.stringify(exportData, null, 2);
+
+            // Créer un lien de téléchargement
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+			a.download = 'MAJ_' + new Date().toISOString() + '.json';            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            resultDiv.textContent = "Données exportées avec succès !";
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
