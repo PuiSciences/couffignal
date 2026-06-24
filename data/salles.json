@@ -1,0 +1,151 @@
+[
+    {
+        "id": "C117",
+        "status": "warning",
+        "tickets": [
+            {
+                "description": "Mettre des poignées sur les portes des ordis",
+                "status": "À faire",
+                "priority": 2,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "1 chaise HS",
+                "status": "À faire",
+                "priority": 2,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "Robinets à resserrer",
+                "status": "À faire",
+                "priority": 1,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "Possibilité de mettre rideau au moins sur 2 fenêtres ?",
+                "status": "À faire",
+                "priority": 1,
+                "date": "Juin 2026"
+            }
+        ],
+        "labo": [
+            {
+                "description": "Ajouter étiquettes 4 souris",
+                "status": "Fait",
+                "priority": 0,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "Ajouter porte-clé/étiquette clés pour les PC",
+                "status": "Fait",
+                "priority": 0,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "Panneau occultant à mettre : message à envoyer à la direction",
+                "status": "À faire",
+                "priority": 2,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "Ajout tapis souris fait",
+                "status": "Fait",
+                "priority": 0,
+                "date": "Juin 2026"
+            }
+        ]
+    },
+    {
+        "id": "C115",
+        "status": "warning",
+        "tickets": [
+            {
+                "description": "2 carrés de néon au-dessus du bureau HS",
+                "status": "À faire",
+                "priority": 2,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "2 fenêtres sans volet",
+                "status": "À faire",
+                "priority": 1,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "Resserrage de robinets",
+                "status": "À faire",
+                "priority": 1,
+                "date": "Juin 2026"
+            }
+        ],
+        "labo": [
+            {
+                "description": "Panneau occultant à mettre : message à envoyer à la direction",
+                "status": "À faire",
+                "priority": 2,
+                "date": "Juin 2026"
+            },
+            {
+                "description": "Ajout tapis souris fait",
+                "status": "Fait",
+                "priority": 0,
+                "date": "Juin 2026"
+            }
+        ]
+    },
+    {
+        "id": "Autre",
+        "status": "warning",
+        "tickets": [],
+        "labo": [
+            {
+                "description": "Volets occultants demandés (pas de dernier bilan)",
+                "status": "À faire",
+                "priority": 2,
+                "date": "Juin 2026"
+            }
+        ]
+    },
+    {
+        "id": "C102",
+        "status": "ok",
+        "tickets": [],
+        "labo": []
+    },
+    {
+        "id": "C104",
+        "status": "ok",
+        "tickets": [],
+        "labo": []
+    },
+    {
+        "id": "C106",
+        "status": "ok",
+        "tickets": [],
+        "labo": []
+    },
+    {
+        "id": "C108",
+        "status": "ok",
+        "tickets": [],
+        "labo": []
+    },
+    {
+        "id": "F311",
+        "status": "ok",
+        "tickets": [],
+        "labo": []
+    },
+    {
+        "id": "F314",
+        "status": "ok",
+        "tickets": [],
+        "labo": []
+    },
+    {
+        "id": "F316",
+        "status": "ok",
+        "tickets": [],
+        "labo": []
+    }
+]

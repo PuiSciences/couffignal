@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌡️ Météo des salles - Laboratoire Couffignal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            padding: 8px 15px;
+            background: #0073aa;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005177;
+        }
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .salle-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .salle-card:hover {
+            transform: scale(1.02);
+        }
+        .salle-card.ok {
+            border-left: 5px solid #4CAF50;
+        }
+        .salle-card.warning {
+            border-left: 5px solid #FFC107;
+        }
+        .salle-card.error {
+            border-left: 5px solid #F44336;
+        }
+        .salle-card h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .salle-card p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .problems {
+            margin-top: 20px;
+        }
+        .problem-item {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .problem-item.ticket {
+            border-left: 4px solid #2196F3;
+        }
+        .problem-item.labo {
+            border-left: 4px solid #4CAF50;
+        }
+        .problem-item.priority-0 {
+            border-left-color: #4CAF50;
+        }
+        .problem-item.priority-1 {
+            border-left-color: #FFC107;
+        }
+        .problem-item.priority-2 {
+            border-left-color: #F44336;
+        }
+        .status-vu {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .status-a-faire {
+            color: #F44336;
+            font-weight: bold;
+        }
+        .status-fait {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .type-ticket {
+            background-color: #e3f2fd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .type-labo {
+            background-color: #e8f5e9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌡️ Météo des salles - Laboratoire Couffignal</h1>
+
+    <!-- Filtres -->
+    <div class="filters">
+        <button onclick="filterProblems('all')">Tous les problèmes</button>
+        <button onclick="filterProblems('ticket')">Tickets (Maintenance)</button>
+        <button onclick="filterProblems('labo')">Boulot Labo</button>
+    </div>
+
+    <!-- Tableau de bord -->
+    <div class="dashboard" id="dashboard"></div>
+
+    <!-- Liste des problèmes -->
+    <div class="problems" id="problemsList"></div>
+
+    <!-- Script -->
+    <script>
+        // Charge les données depuis le fichier JSON
+        fetch('data/salles.json')
+            .then(response => response.json())
+            .then(salles => {
+                window.salles = salles;
+                generateDashboard();
+                showProblems("C117"); // Affiche les problèmes de C117 par défaut
+            })
+            .catch(error => {
+                console.error("Erreur de chargement des données :", error);
+                document.getElementById("dashboard").innerHTML = "<p>Erreur de chargement des données. Vérifiez le fichier <code>data/salles.json</code>.</p>";
+            });
+
+        // Génère le tableau de bord
+        function generateDashboard() {
+            const dashboard = document.getElementById("dashboard");
+            dashboard.innerHTML = "";
+            salles.forEach(salle => {
+                const card = document.createElement("div");
+                card.className = `salle-card ${salle.status}`;
+                card.onclick = () => showProblems(salle.id);
+                card.innerHTML = `
+                    <h3>\${salle.id}</h3>
+                    <p><strong>Statut :</strong> \${getStatusText(salle.status)}</p>
+                    <p><strong>Tickets :</strong> \${salle.tickets.length} | <strong>Boulot Labo :</strong> \${salle.labo.length}</p>
+                `;
+                dashboard.appendChild(card);
+            });
+        }
+
+        // Affiche les problèmes d'une salle
+        function showProblems(salleId) {
+            const problemsList = document.getElementById("problemsList");
+            const salle = salles.find(s => s.id === salleId);
+            problemsList.innerHTML = `
+                <h2>Détails pour la salle \${salleId}</h2>
+                \${salle.tickets.length === 0 && salle.labo.length === 0 ? "<p>Aucun problème signalé.</p>" : ""}
+            `;
+
+            // Affiche les tickets
+            if (salle.tickets.length > 0) {
+                problemsList.innerHTML += `<h3>🎫 Tickets (Maintenance)</h3>`;
+                salle.tickets.forEach(ticket => {
+                    problemsList.innerHTML += `
+                        <div class="problem-item ticket priority-${ticket.priority}">
+                            <p><span class="type-ticket">🎫 Ticket</span> | <strong>Statut :</strong> <span class="status-${ticket.status}">\${ticket.status}</span></p>
+                            <p><strong>Description :</strong> \${ticket.description}</p>
+                            <p><strong>Date :</strong> \${ticket.date}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            // Affiche les tâches labo
+            if (salle.labo.length > 0) {
+                problemsList.innerHTML += `<h3>🔧 Boulot Labo</h3>`;
+                salle.labo.forEach(task => {
+                    problemsList.innerHTML += `
+                        <div class="problem-item labo priority-\${task.priority}">
+                            <p><span class="type-labo">🔧 Labo</span> | <strong>Statut :</strong> <span class="status-${task.status}">${task.status}</span></p>
+                            <p><strong>Description :</strong> \${task.description}</p>
+                            <p><strong>Date :</strong> \${task.date}</p>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Filtre les problèmes
+        function filterProblems(type) {
+            const problemsList = document.getElementById("problemsList");
+            problemsList.innerHTML = `<h2>Problèmes filtrés (${type === 'all' ? 'Tous' : type === 'ticket' ? 'Tickets' : 'Boulot Labo'})</h2>`;
+            let hasProblems = false;
+            salles.forEach(salle => {
+                const items = type === 'all' ? [...salle.tickets, ...salle.labo] :
+                              type === 'ticket' ? salle.tickets :
+                              salle
