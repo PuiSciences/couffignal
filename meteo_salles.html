@@ -94,25 +94,12 @@
         .problem-item.labo {
             border-left: 4px solid #4CAF50;
         }
-        .problem-item.priority-0 {
-            border-left-color: #4CAF50;
-        }
-        .problem-item.priority-1 {
-            border-left-color: #FFC107;
-        }
-        .problem-item.priority-2 {
-            border-left-color: #F44336;
-        }
-        .status-vu {
+        .status-vu, .status-fait {
             color: #4CAF50;
             font-weight: bold;
         }
         .status-a-faire {
             color: #F44336;
-            font-weight: bold;
-        }
-        .status-fait {
-            color: #4CAF50;
             font-weight: bold;
         }
         .type-ticket {
@@ -145,20 +132,160 @@
     <!-- Liste des problèmes -->
     <div class="problems" id="problemsList"></div>
 
-    <!-- Script -->
+    <!-- Script avec données intégrées -->
     <script>
-        // Charge les données depuis le fichier JSON
-        fetch('https://puisciences.github.io/couffignal/data/salles.json')
-            .then(response => response.json())
-            .then(salles => {
-                window.salles = salles;
-                generateDashboard();
-                showProblems("C117"); // Affiche les problèmes de C117 par défaut
-            })
-            .catch(error => {
-                console.error("Erreur de chargement des données :", error);
-                document.getElementById("dashboard").innerHTML = "<p>Erreur de chargement des données. Vérifiez le fichier <code>data/salles.json</code>.</p>";
-            });
+        // Données intégrées directement dans le HTML
+        const salles = [
+            {
+                "id": "C117",
+                "status": "warning",
+                "tickets": [
+                    {
+                        "description": "Mettre des poignées sur les portes des ordis",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "1 chaise HS",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Robinets à resserrer",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Possibilité de mettre rideau au moins sur 2 fenêtres ?",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    }
+                ],
+                "labo": [
+                    {
+                        "description": "Ajouter étiquettes 4 souris",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Ajouter porte-clé/étiquette clés pour les PC",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Panneau occultant à mettre : message à envoyer à la direction",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Ajout tapis souris fait",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    }
+                ]
+            },
+            {
+                "id": "C115",
+                "status": "warning",
+                "tickets": [
+                    {
+                        "description": "2 carrés de néon au-dessus du bureau HS",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "2 fenêtres sans volet",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Resserrage de robinets",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    }
+                ],
+                "labo": [
+                    {
+                        "description": "Panneau occultant à mettre : message à envoyer à la direction",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Ajout tapis souris fait",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    }
+                ]
+            },
+            {
+                "id": "Autre",
+                "status": "warning",
+                "tickets": [],
+                "labo": [
+                    {
+                        "description": "Volets occultants demandés (pas de dernier bilan)",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    }
+                ]
+            },
+            {
+                "id": "C102",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "C104",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "C106",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "C108",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "F311",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "F314",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "F316",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            }
+        ];
 
         // Génère le tableau de bord
         function generateDashboard() {
@@ -169,9 +296,9 @@
                 card.className = `salle-card ${salle.status}`;
                 card.onclick = () => showProblems(salle.id);
                 card.innerHTML = `
-                    <h3>\${salle.id}</h3>
-                    <p><strong>Statut :</strong> \${getStatusText(salle.status)}</p>
-                    <p><strong>Tickets :</strong> \${salle.tickets.length} | <strong>Boulot Labo :</strong> \${salle.labo.length}</p>
+                    <h3>${salle.id}</h3>
+                    <p><strong>Statut :</strong> ${getStatusText(salle.status)}</p>
+                    <p><strong>Tickets :</strong> ${salle.tickets.length} | <strong>Boulot Labo :</strong> ${salle.labo.length}</p>
                 `;
                 dashboard.appendChild(card);
             });
@@ -182,8 +309,8 @@
             const problemsList = document.getElementById("problemsList");
             const salle = salles.find(s => s.id === salleId);
             problemsList.innerHTML = `
-                <h2>Détails pour la salle \${salleId}</h2>
-                \${salle.tickets.length === 0 && salle.labo.length === 0 ? "<p>Aucun problème signalé.</p>" : ""}
+                <h2>Détails pour la salle ${salleId}</h2>
+                ${salle.tickets.length === 0 && salle.labo.length === 0 ? "<p>Aucun problème signalé.</p>" : ""}
             `;
 
             // Affiche les tickets
@@ -191,10 +318,11 @@
                 problemsList.innerHTML += `<h3>🎫 Tickets (Maintenance)</h3>`;
                 salle.tickets.forEach(ticket => {
                     problemsList.innerHTML += `
-                        <div class="problem-item ticket priority-${ticket.priority}">
-                            <p><span class="type-ticket">🎫 Ticket</span> | <strong>Statut :</strong> <span class="status-${ticket.status}">\${ticket.status}</span></p>
-                            <p><strong>Description :</strong> \${ticket.description}</p>
-                            <p><strong>Date :</strong> \${ticket.date}</p>
+                        <div class="problem-item ticket">
+                            <p><span class="type-ticket">🎫 Ticket</span> | <strong>Statut :</strong> <span class="status-${ticket.status.toLowerCase().replace(' ', '-')}">${ticket.status}</span></p>
+                            <p><strong>Description :</strong> ${ticket.description}</p>
+                            <p><strong>Priorité :</strong> ${getPriorityText(ticket.priority)}</p>
+                            <p><strong>Date :</strong> ${ticket.date}</p>
                         </div>
                     `;
                 });
@@ -205,10 +333,11 @@
                 problemsList.innerHTML += `<h3>🔧 Boulot Labo</h3>`;
                 salle.labo.forEach(task => {
                     problemsList.innerHTML += `
-                        <div class="problem-item labo priority-\${task.priority}">
-                            <p><span class="type-labo">🔧 Labo</span> | <strong>Statut :</strong> <span class="status-${task.status}">${task.status}</span></p>
-                            <p><strong>Description :</strong> \${task.description}</p>
-                            <p><strong>Date :</strong> \${task.date}</p>
+                        <div class="problem-item labo">
+                            <p><span class="type-labo">🔧 Labo</span> | <strong>Statut :</strong> <span class="status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</span></p>
+                            <p><strong>Description :</strong> ${task.description}</p>
+                            <p><strong>Priorité :</strong> ${getPriorityText(task.priority)}</p>
+                            <p><strong>Date :</strong> ${task.date}</p>
                         </div>
                     `;
                 });
@@ -223,4 +352,49 @@
             salles.forEach(salle => {
                 const items = type === 'all' ? [...salle.tickets, ...salle.labo] :
                               type === 'ticket' ? salle.tickets :
-                              salle
+                              salle.labo;
+                items.forEach(item => {
+                    hasProblems = true;
+                    const itemType = type === 'ticket' ? 'ticket' : 'labo';
+                    problemsList.innerHTML += `
+                        <div class="problem-item ${itemType}">
+                            <p><strong>Salle :</strong> ${salle.id} | <strong>Type :</strong> ${itemType === 'ticket' ? '🎫 Ticket' : '🔧 Labo'}</p>
+                            <p><strong>Statut :</strong> <span class="status-${item.status.toLowerCase().replace(' ', '-')}">${item.status}</span></p>
+                            <p><strong>Description :</strong> ${item.description}</p>
+                            <p><strong>Priorité :</strong> ${getPriorityText(item.priority)}</p>
+                            <p><strong>Date :</strong> ${item.date}</p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                        </div>
+                    `;
+                });
+            });
+            if (!hasProblems) problemsList.innerHTML += "<p>Aucun problème trouvé.</p>";
+        }
+
+        // Textes pour l'affichage
+        function getStatusText(status) {
+            switch(status) {
+                case "ok": return "✅ OK";
+                case "warning": return "⚠️ À surveiller";
+                case "error": return "❌ Urgent";
+                default: return "❓ Inconnu";
+            }
+        }
+
+        function getPriorityText(priority) {
+            switch(priority) {
+                case 0: return "Aucune";
+                case 1: return "Faible";
+                case 2: return "Élevée";
+                default: return "Inconnue";
+            }
+        }
+
+        // Initialisation
+        window.onload = function() {
+            generateDashboard();
+            showProblems("C117"); // Affiche les problèmes de C117 par défaut
+        };
+    </script>
+</body>
+</html>
