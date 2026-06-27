@@ -256,17 +256,27 @@
             font-weight: 600;
         }
 .btn-reset {
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
+    background-color: transparent;
+    color: #C0392B;
+    border: 1px solid #C0392B;
+    padding: 10px 18px;
+    border-radius: 2px;
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    margin-left: 8px;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+    font-size: 0.85rem;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 .btn-reset:hover {
-    background-color: #ff5252;
+    background-color: #C0392B;
+    color: var(--paper);
+}
+.btn-reset:active {
+    transform: translateY(1px);
 }
         @media (prefers-reduced-motion: reduce) {
             * { transition: none !important; }
@@ -302,7 +312,6 @@
 		<hr>
 
         <button id="exportButton">Exporter la MAJ</button>
-		<br/>
 		<button onclick="resetScannedProducts()" class="btn-reset">Réinitialiser</button>
     </div>
 	<h3><img src="https://lyc-couffignal-strasbourg.site.ac-strasbourg.fr/public/images/logo2.png"  />
