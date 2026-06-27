@@ -255,7 +255,19 @@
             margin: 10px 0;
             font-weight: 600;
         }
-
+.btn-reset {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    margin-left: 8px;
+}
+.btn-reset:hover {
+    background-color: #ff5252;
+}
         @media (prefers-reduced-motion: reduce) {
             * { transition: none !important; }
         }
@@ -290,6 +302,7 @@
 		<hr>
 
         <button id="exportButton">Exporter la MAJ</button>
+		<button onclick="resetScannedProducts()" class="btn-reset">Réinitialiser</button>
     </div>
 	<h3><img src="https://lyc-couffignal-strasbourg.site.ac-strasbourg.fr/public/images/logo2.png"  />
 	</h3>
@@ -540,6 +553,15 @@
             resultDiv.textContent = "Données exportées avec succès !";
             resultDiv.style.display = 'block';
         }
+		function resetScannedProducts() {
+    if (confirm("Êtes-vous sûr de vouloir tout réinitialiser ?")) {
+        localStorage.removeItem('scannedProducts');
+        scannedProducts = [];
+        updateProductList();
+        resultDiv.textContent = "Données réinitialisées.";
+        resultDiv.style.display = 'block';
+    }
+}
     </script>
 </body>
 </html>
