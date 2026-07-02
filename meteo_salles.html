@@ -3,493 +3,398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion Produits Couffignal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <title>🌡️ Météo des salles - Laboratoire Couffignal</title>
     <style>
-        :root {
-            --charcoal: #1F2426;
-            --paper: #F4F1EA;
-            --grey: #BEBEBE;
-            --grey-light: #D3D3D3;
-            --steel: #3D5A73;
-            --yellow: #FFC857;
-            --line: #D9D4C7;
-            --ink: #1F2426;
-            --green: #27AE60;
-        }
-
-        * { box-sizing: border-box; }
-
         body {
-            font-family: 'Inter', Arial, sans-serif;
-            max-width: 800px;
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 16px;
-            background-color: var(--charcoal);
-            background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 14px);
-            color: var(--ink);
-            min-height: 100vh;
+            padding: 20px;
+            background-color: #f9f9f9;
         }
-
+        h1, h2 {
+            color: #2c3e50;
+        }
         h1 {
-            font-family: 'Oswald', sans-serif;
-            color: var(--charcoal);
             text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            font-weight: 600;
-            font-size: 1.5rem;
-            margin: 8px 0 4px;
+            margin-bottom: 30px;
         }
-
         h2 {
-            font-family: 'Oswald', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            font-size: 1.05rem;
-            color: var(--charcoal);
-            border-bottom: 2px solid var(--charcoal);
-            padding-bottom: 8px;
-            margin-top: 28px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
         }
-
-        h3 {
-            color: #8A9296;
-            text-align: center;
-            font-size: 0.75rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-
-        h3 img {
-            max-width: 140px;
-            opacity: 0.85;
-            filter: grayscale(1) brightness(1.6);
-            margin-top: 8px;
-        }
-
-        hr { border: none; border-top: 1px solid #3A4244; margin: 16px 0; }
-
-        .container {
-            background-color: var(--paper);
-            padding: 20px 16px 24px;
-            border-radius: 6px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-            border-top: 4px solid #E07B39;
-        }
-
-        /* ── Scanner ── */
-        #scanner-container {
-            margin: 18px 0;
-            text-align: center;
-            position: relative;
-            padding: 10px;
-        }
-
-        #scanner-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        #scanner {
-            width: 100%;
-            aspect-ratio: 4/3;
-            object-fit: cover;
-            background: #0c0e0f;
-            border: 2px solid var(--charcoal);
-            border-radius: 2px;
-            display: block;
-        }
-
-        /* Coins de visée */
-        #scanner-wrapper::before, #scanner-wrapper::after,
-        #corner-bl, #corner-br {
-            content: "";
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            border-color: #E07B39;
-            z-index: 2;
-        }
-        #scanner-wrapper::before { top: 6px; left: 6px; border-top: 3px solid #E07B39; border-left: 3px solid #E07B39; }
-        #scanner-wrapper::after  { top: 6px; right: 6px; border-top: 3px solid #E07B39; border-right: 3px solid #E07B39; }
-        #corner-bl { bottom: 6px; left: 6px; border-bottom: 3px solid #E07B39; border-left: 3px solid #E07B39; }
-        #corner-br { bottom: 6px; right: 6px; border-bottom: 3px solid #E07B39; border-right: 3px solid #E07B39; }
-
-        /* Ligne de scan animée */
-        #scan-line {
-            position: absolute;
-            left: 10%; width: 80%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #E07B39, transparent);
-            top: 10%;
-            display: none;
-            z-index: 3;
-            animation: scanMove 2s linear infinite;
-        }
-        @keyframes scanMove {
-            0%   { top: 10%; }
-            50%  { top: 85%; }
-            100% { top: 10%; }
-        }
-
-        #scanner-container button { margin: 12px 6px 0; }
-
-        /* ── Résultat ── */
-        #result {
-            margin: 16px 0;
-            padding: 12px 14px;
-            background-color: #EAF1F5;
-            border-left: 4px solid var(--steel);
-            border-radius: 2px;
-            display: none;
-            font-size: 0.92rem;
-            color: var(--charcoal);
-        }
-
-        /* ── Tableau ── */
-        table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.88rem; }
-        th, td { border: none; border-bottom: 1px solid var(--line); padding: 10px 6px; text-align: left; }
-        th {
-            background-color: var(--charcoal);
-            color: var(--paper);
-            font-family: 'Oswald', sans-serif;
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.68rem;
-            letter-spacing: 0.06em;
-        }
-        td:first-child, td:nth-child(4) {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--steel);
-            font-weight: 600;
-        }
-        tr:nth-child(even) { background-color: #ECE8DD; }
-
-        input[type="number"] {
-            width: 64px; padding: 6px 4px;
-            font-family: 'JetBrains Mono', monospace;
-            border: 1px solid #B9C2C6; border-radius: 2px;
-            background: #fff; font-size: 0.9rem;
-        }
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #E07B39;
-            box-shadow: 0 0 0 2px rgba(224,123,57,0.25);
-        }
-
-        /* ── Boutons ── */
         button {
-            background-color: var(--steel);
-            color: var(--paper);
+            padding: 8px 15px;
+            background: #0073aa;
+            color: white;
             border: none;
-            padding: 11px 18px;
-            border-radius: 2px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-family: 'Oswald', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            font-weight: 500;
-            transition: background-color 0.15s ease, transform 0.1s ease;
         }
-        button:hover { background-color: #2D4357; }
-        button:active { transform: translateY(1px); }
-        button:disabled { background-color: #C9C3B5; color: #8a857a; cursor: not-allowed; }
-
-        #startScanButton { background-color: var(--grey-light); color: var(--charcoal); }
-        #startScanButton:hover { background-color: var(--grey); }
-
-        #exportButton {
-            background-color: var(--yellow);
-            color: var(--charcoal);
+        button:hover {
+            background: #005177;
+        }
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .salle-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .salle-card:hover {
+            transform: scale(1.02);
+        }
+        .salle-card.ok {
+            border-left: 5px solid #4CAF50;
+        }
+        .salle-card.warning {
+            border-left: 5px solid #FFC107;
+        }
+        .salle-card.error {
+            border-left: 5px solid #F44336;
+        }
+        .salle-card h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .salle-card p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .problems {
             margin-top: 20px;
-            width: 100%; padding: 14px;
-            font-size: 1rem; font-weight: 600;
         }
-        #exportButton:hover { background-color: #F2B33D; }
-
-        #emailButton {
-            background-color: var(--green);
-            color: #fff;
-            margin-top: 10px;
-            width: 100%; padding: 13px;
-            font-size: 0.95rem; font-weight: 600;
-            display: none;
+        .problem-item {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        #emailButton:hover { background-color: #219a52; }
-
-        .btn-reset {
-            background-color: transparent;
-            color: #C0392B;
-            border: 1px solid #C0392B;
-            padding: 10px 18px; border-radius: 2px;
-            cursor: pointer;
-            font-family: 'Oswald', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            font-weight: 500; font-size: 0.85rem;
-            width: 100%; margin-top: 10px;
-            transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+        .problem-item.ticket {
+            border-left: 4px solid #2196F3;
         }
-        .btn-reset:hover { background-color: #C0392B; color: var(--paper); }
-        .btn-reset:active { transform: translateY(1px); }
-
-        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+        .problem-item.labo {
+            border-left: 4px solid #4CAF50;
+        }
+        .status-vu, .status-fait {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .status-a-faire {
+            color: #F44336;
+            font-weight: bold;
+        }
+        .type-ticket {
+            background-color: #e3f2fd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .type-labo {
+            background-color: #e8f5e9;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Gestion des Produits</h1>
-    <hr>
+    <h1>🌡️ Météo des salles - Laboratoire Couffignal</h1>
 
-    <div id="scanner-container">
-        <div id="scanner-wrapper">
-            <video id="scanner" autoplay playsinline muted></video>
-            <div id="corner-bl"></div>
-            <div id="corner-br"></div>
-            <div id="scan-line"></div>
-        </div>
-        <br>
-        <button id="startScanButton">Démarrer le scan</button>
-        <button id="stopScanButton" disabled>Arrêter le scan</button>
+    <!-- Filtres -->
+    <div class="filters">
+        <button onclick="filterProblems('all')">Tous les problèmes</button>
+        <button onclick="filterProblems('ticket')">Tickets (Maintenance)</button>
+        <button onclick="filterProblems('labo')">Boulot Labo</button>
     </div>
 
-    <div id="result"></div>
+    <!-- Tableau de bord -->
+    <div class="dashboard" id="dashboard"></div>
 
-    <h2>Produits scannés</h2>
-    <table id="productsTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Nlle quantité</th>
-                <th>Réserve</th>
-                <th>Nlle réserve</th>
-            </tr>
-        </thead>
-        <tbody id="productsTableBody"></tbody>
-    </table>
-    <hr>
+    <!-- Liste des problèmes -->
+    <div class="problems" id="problemsList"></div>
 
-    <button id="exportButton">⬇ Exporter la MAJ (CSV)</button>
-    <button id="emailButton">✉ Envoyer par email</button>
-    <button onclick="resetScannedProducts()" class="btn-reset">Réinitialiser</button>
-</div>
-<h3><img src="https://lyc-couffignal-strasbourg.site.ac-strasbourg.fr/public/images/logo2.png" /></h3>
-
-<!-- ZXing : bien plus robuste que jsQR (meilleure détection angles, flou, faible lumière) -->
-<script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
-<script>
-    let codeReader = null;
-    let scannedProducts = JSON.parse(localStorage.getItem('scannedProducts')) || [];
-    let lastCSVContent = '';
-
-    const scannerEl      = document.getElementById('scanner');
-    const startScanBtn   = document.getElementById('startScanButton');
-    const stopScanBtn    = document.getElementById('stopScanButton');
-    const resultDiv      = document.getElementById('result');
-    const productsBody   = document.getElementById('productsTableBody');
-    const exportBtn      = document.getElementById('exportButton');
-    const emailBtn       = document.getElementById('emailButton');
-    const scanLine       = document.getElementById('scan-line');
-
-    startScanBtn.addEventListener('click', startScanning);
-    stopScanBtn.addEventListener('click', stopScanning);
-    exportBtn.addEventListener('click', exportToCSV);
-    emailBtn.addEventListener('click', sendByEmail);
-
-    loadScannedProducts();
-
-    // ── Scan ──────────────────────────────────────────────────────────────────
-
-    function startScanning() {
-        resultDiv.style.display = 'none';
-
-        if (!window.isSecureContext) {
-            showResult('<strong>Erreur : page non sécurisée.</strong><br>La caméra nécessite une URL en <code>https://</code>. Hébergez ce fichier sur Netlify ou GitHub Pages.');
-            return;
-        }
-
-        if (typeof ZXing === 'undefined') {
-            showResult('Erreur : la bibliothèque ZXing n\'a pas pu se charger. Vérifiez votre connexion.');
-            return;
-        }
-
-        startScanBtn.disabled = true;
-        stopScanBtn.disabled = false;
-        scanLine.style.display = 'block';
-
-        codeReader = new ZXing.BrowserQRCodeReader();
-
-        // Caméra arrière en haute résolution pour une meilleure détection
-        const constraints = {
-            video: {
-                facingMode: 'environment',
-                width:  { ideal: 1920 },
-                height: { ideal: 1080 }
+    <!-- Script avec données intégrées -->
+    <script>
+        // Données intégrées directement dans le HTML
+        const salles = [
+            {
+                "id": "C117",
+                "status": "warning",
+                "tickets": [
+                    {
+                        "description": "Mettre des poignées sur les portes des ordis",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "1 chaise HS",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Robinets à resserrer",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Possibilité de mettre rideau au moins sur 2 fenêtres ?",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    }
+                ],
+                "labo": [
+                    {
+                        "description": "Ajouter étiquettes 4 souris",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Ajouter porte-clé/étiquette clés pour les PC",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Panneau occultant à mettre : message à envoyer à la direction",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Ajout tapis souris fait",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    }
+                ]
+            },
+            {
+                "id": "C115",
+                "status": "warning",
+                "tickets": [
+                    {
+                        "description": "2 carrés de néon au-dessus du bureau HS",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "2 fenêtres sans volet",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Resserrage de robinets",
+                        "status": "À faire",
+                        "priority": 1,
+                        "date": "Juin 2026"
+                    }
+                ],
+                "labo": [
+                    {
+                        "description": "Panneau occultant à mettre : message à envoyer à la direction",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    },
+                    {
+                        "description": "Ajout tapis souris fait",
+                        "status": "Fait",
+                        "priority": 0,
+                        "date": "Juin 2026"
+                    }
+                ]
+            },
+            {
+                "id": "Autre",
+                "status": "warning",
+                "tickets": [],
+                "labo": [
+                    {
+                        "description": "Volets occultants demandés (pas de dernier bilan)",
+                        "status": "À faire",
+                        "priority": 2,
+                        "date": "Juin 2026"
+                    }
+                ]
+            },
+            {
+                "id": "C102",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "C104",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "C106",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "C108",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "F311",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "F314",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
+            },
+            {
+                "id": "F316",
+                "status": "ok",
+                "tickets": [],
+                "labo": []
             }
-        };
+        ];
 
-        codeReader.decodeFromConstraints(constraints, scannerEl, (result, err) => {
-            if (result) {
-                stopScanning();
-                processQRCode(result.getText());
-            }
-            // Les erreurs "NotFoundException" sont normales (aucun QR visible), on les ignore
-            if (err && !(err instanceof ZXing.NotFoundException)) {
-                showResult('Erreur scan : ' + err.message);
-            }
-        }).catch(err => {
-            let msg = 'Erreur caméra (' + (err.name || err) + ')';
-            if (err.name === 'NotAllowedError')  msg += '<br>Permission refusée. Vérifiez les réglages du navigateur.';
-            if (err.name === 'NotFoundError')     msg += '<br>Aucune caméra détectée.';
-            if (err.name === 'NotReadableError')  msg += '<br>La caméra est peut-être utilisée par une autre app.';
-            showResult(msg);
-            startScanBtn.disabled = false;
-            stopScanBtn.disabled = true;
-            scanLine.style.display = 'none';
-        });
-    }
-
-    function stopScanning() {
-        if (codeReader) {
-            codeReader.reset();
-            codeReader = null;
-        }
-        scannerEl.srcObject = null;
-        startScanBtn.disabled = false;
-        stopScanBtn.disabled = true;
-        scanLine.style.display = 'none';
-    }
-
-    // ── Traitement QR ─────────────────────────────────────────────────────────
-
-    function processQRCode(qrData) {
-        try {
-            const product = JSON.parse(qrData);
-            if (!product.ID || product["Nom du produit"] === undefined) {
-                showResult('QR code invalide : données manquantes (ID ou Nom du produit absent).');
-                return;
-            }
-            if (scannedProducts.findIndex(p => p.ID === product.ID) !== -1) {
-                showResult('⚠ Ce produit a déjà été scanné.');
-                return;
-            }
-            scannedProducts.push({
-                ID: product.ID,
-                Nom: product["Nom du produit"],
-                NouvelleQuantite: product["Quantité entamée"] || 0,
-                Reserve: product["Réserve"] || 0,
-                NouvelleReserve: product["Réserve"] || 0
+        // Génère le tableau de bord
+        function generateDashboard() {
+            const dashboard = document.getElementById("dashboard");
+            dashboard.innerHTML = "";
+            salles.forEach(salle => {
+                const card = document.createElement("div");
+                card.className = `salle-card ${salle.status}`;
+                card.onclick = () => showProblems(salle.id);
+                card.innerHTML = `
+                    <h3>${salle.id}</h3>
+                    <p><strong>Statut :</strong> ${getStatusText(salle.status)}</p>
+                    <p><strong>Tickets :</strong> ${salle.tickets.length} | <strong>Boulot Labo :</strong> ${salle.labo.length}</p>
+                `;
+                dashboard.appendChild(card);
             });
-            localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts));
-            loadScannedProducts();
-            showResult('✔ Produit scanné : ' + product["Nom du produit"]);
-        } catch (e) {
-            showResult('Erreur : QR code non valide (format JSON attendu).');
         }
-    }
 
-    // ── Tableau ───────────────────────────────────────────────────────────────
-
-    function loadScannedProducts() {
-        productsBody.innerHTML = '';
-        scannedProducts.forEach(product => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${product.ID}</td>
-                <td>${product.Nom}</td>
-                <td><input type="number" value="${product.NouvelleQuantite}"
-                     data-id="${product.ID}" data-field="NouvelleQuantite" class="quantity-input"></td>
-                <td>${product.Reserve}</td>
-                <td><input type="number" value="${product.NouvelleReserve}"
-                     data-id="${product.ID}" data-field="NouvelleReserve" class="quantity-input"></td>
+        // Affiche les problèmes d'une salle
+        function showProblems(salleId) {
+            const problemsList = document.getElementById("problemsList");
+            const salle = salles.find(s => s.id === salleId);
+            problemsList.innerHTML = `
+                <h2>Détails pour la salle ${salleId}</h2>
+                ${salle.tickets.length === 0 && salle.labo.length === 0 ? "<p>Aucun problème signalé.</p>" : ""}
             `;
-            productsBody.appendChild(row);
-        });
 
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.addEventListener('change', function () {
-                const id    = parseInt(this.getAttribute('data-id'));
-                const field = this.getAttribute('data-field');
-                const val   = parseInt(this.value);
-                const p     = scannedProducts.find(p => p.ID === id);
-                if (p) { p[field] = val; localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts)); }
-            });
-        });
-    }
+            // Affiche les tickets
+            if (salle.tickets.length > 0) {
+                problemsList.innerHTML += `<h3>🎫 Tickets (Maintenance)</h3>`;
+                salle.tickets.forEach(ticket => {
+                    problemsList.innerHTML += `
+                        <div class="problem-item ticket">
+                            <p><span class="type-ticket">🎫 Ticket</span> | <strong>Statut :</strong> <span class="status-${ticket.status.toLowerCase().replace(' ', '-')}">${ticket.status}</span></p>
+                            <p><strong>Description :</strong> ${ticket.description}</p>
+                            <p><strong>Priorité :</strong> ${getPriorityText(ticket.priority)}</p>
+                            <p><strong>Date :</strong> ${ticket.date}</p>
+                        </div>
+                    `;
+                });
+            }
 
-    // ── Export CSV ────────────────────────────────────────────────────────────
-
-    function buildCSV() {
-        const headers = ['ID', 'Nom du produit', 'Nouvelle quantité', 'Nouvelle réserve'];
-        const rows = scannedProducts.map(p => [
-            p.ID,
-            '"' + String(p.Nom).replace(/"/g, '""') + '"',
-            p.NouvelleQuantite,
-            p.NouvelleReserve
-        ]);
-        return [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
-    }
-
-    function exportToCSV() {
-        if (scannedProducts.length === 0) { showResult('Aucun produit scanné à exporter.'); return; }
-
-        lastCSVContent = buildCSV();
-
-        // BOM UTF-8 pour ouverture correcte dans Excel
-        const blob = new Blob(['\uFEFF' + lastCSVContent], { type: 'text/csv;charset=utf-8;' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href = url;
-        a.download = 'MAJ_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        showResult('✔ Export CSV réussi ! Vous pouvez aussi l\'envoyer par email ci-dessous.');
-        emailBtn.style.display = 'block';
-    }
-
-    // ── Envoi email ───────────────────────────────────────────────────────────
-
-    function sendByEmail() {
-        if (!lastCSVContent) { lastCSVContent = buildCSV(); }
-
-        const date    = new Date().toLocaleDateString('fr-FR');
-        const subject = encodeURIComponent('MAJ Inventaire Couffignal – ' + date);
-
-        // Corps du mail : tableau lisible + données brutes CSV
-        const lines   = lastCSVContent.split('\r\n');
-        let bodyText  = 'Mise à jour inventaire Lycée Couffignal – ' + date + '\n\n';
-        bodyText += lines.join('\n');
-        bodyText += '\n\n(Le fichier CSV a également été téléchargé sur votre appareil.)';
-
-        const mailtoLink = 'mailto:?subject=' + subject + '&body=' + encodeURIComponent(bodyText);
-        window.location.href = mailtoLink;
-    }
-
-    // ── Reset ─────────────────────────────────────────────────────────────────
-
-    function resetScannedProducts() {
-        if (confirm('Êtes-vous sûr de vouloir tout réinitialiser ?')) {
-            localStorage.removeItem('scannedProducts');
-            location.reload();
+            // Affiche les tâches labo
+            if (salle.labo.length > 0) {
+                problemsList.innerHTML += `<h3>🔧 Boulot Labo</h3>`;
+                salle.labo.forEach(task => {
+                    problemsList.innerHTML += `
+                        <div class="problem-item labo">
+                            <p><span class="type-labo">🔧 Labo</span> | <strong>Statut :</strong> <span class="status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</span></p>
+                            <p><strong>Description :</strong> ${task.description}</p>
+                            <p><strong>Priorité :</strong> ${getPriorityText(task.priority)}</p>
+                            <p><strong>Date :</strong> ${task.date}</p>
+                        </div>
+                    `;
+                });
+            }
         }
-    }
 
-    // ── Utilitaire ────────────────────────────────────────────────────────────
+        // Filtre les problèmes
+        function filterProblems(type) {
+            const problemsList = document.getElementById("problemsList");
+            problemsList.innerHTML = `<h2>Problèmes filtrés (${type === 'all' ? 'Tous' : type === 'ticket' ? 'Tickets' : 'Boulot Labo'})</h2>`;
+            let hasProblems = false;
+            salles.forEach(salle => {
+                const items = type === 'all' ? [...salle.tickets, ...salle.labo] :
+                              type === 'ticket' ? salle.tickets :
+                              salle.labo;
+                items.forEach(item => {
+                    hasProblems = true;
+                    const itemType = type === 'ticket' ? 'ticket' : 'labo';
+                    problemsList.innerHTML += `
+                        <div class="problem-item ${itemType}">
+                            <p><strong>Salle :</strong> ${salle.id} | <strong>Type :</strong> ${itemType === 'ticket' ? '🎫 Ticket' : '🔧 Labo'}</p>
+                            <p><strong>Statut :</strong> <span class="status-${item.status.toLowerCase().replace(' ', '-')}">${item.status}</span></p>
+                            <p><strong>Description :</strong> ${item.description}</p>
+                            <p><strong>Priorité :</strong> ${getPriorityText(item.priority)}</p>
+                            <p><strong>Date :</strong> ${item.date}</p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                        </div>
+                    `;
+                });
+            });
+            if (!hasProblems) problemsList.innerHTML += "<p>Aucun problème trouvé.</p>";
+        }
 
-    function showResult(html) {
-        resultDiv.innerHTML = html;
-        resultDiv.style.display = 'block';
-    }
-</script>
+        // Textes pour l'affichage
+        function getStatusText(status) {
+            switch(status) {
+                case "ok": return "✅ OK";
+                case "warning": return "⚠️ À surveiller";
+                case "error": return "❌ Urgent";
+                default: return "❓ Inconnu";
+            }
+        }
+
+        function getPriorityText(priority) {
+            switch(priority) {
+                case 0: return "Aucune";
+                case 1: return "Faible";
+                case 2: return "Élevée";
+                default: return "Inconnue";
+            }
+        }
+
+        // Initialisation
+        window.onload = function() {
+            generateDashboard();
+            showProblems("C117"); // Affiche les problèmes de C117 par défaut
+        };
+    </script>
 </body>
 </html>
