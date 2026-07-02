@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Produits Couffignal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --charcoal: #1F2426;
+            --paper: #F4F1EA;
+            --grey: #BEBEBE;
+            --grey-light: #D3D3D3;
+            --steel: #3D5A73;
+            --yellow: #FFC857;
+            --line: #D9D4C7;
+            --ink: #1F2426;
+            --green: #27AE60;
+        }
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 16px;
+            background-color: var(--charcoal);
+            background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 14px);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--charcoal);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin: 8px 0 4px;
+        }
+        h2 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-size: 1.05rem;
+            color: var(--charcoal);
+            border-bottom: 2px solid var(--charcoal);
+            padding-bottom: 8px;
+            margin-top: 28px;
+        }
+
+        h3 {
+            color: #8A9296;
+            text-align: center;
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h3 img {
+            max-width: 140px;
+            opacity: 0.85;
+            filter: grayscale(1) brightness(1.6);
+            margin-top: 8px;
+        }
+
+        hr { border: none; border-top: 1px solid #3A4244; margin: 16px 0; }
+
+        .container {
+            background-color: var(--paper);
+            padding: 20px 16px 24px;
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            border-top: 4px solid #E07B39;
+        }
+
+        /* ── Scanner ── */
+        #scanner-container {
+            margin: 18px 0;
+            text-align: center;
+            position: relative;
+            padding: 10px;
+        }
+
+        #scanner-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #scanner {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            background: #0c0e0f;
+            border: 2px solid var(--charcoal);
+            border-radius: 2px;
+            display: block;
+        }
+
+        /* Coins de visée */
+        #scanner-wrapper::before, #scanner-wrapper::after,
+        #corner-bl, #corner-br {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-color: #E07B39;
+            z-index: 2;
+        }
+        #scanner-wrapper::before { top: 6px; left: 6px; border-top: 3px solid #E07B39; border-left: 3px solid #E07B39; }
+        #scanner-wrapper::after  { top: 6px; right: 6px; border-top: 3px solid #E07B39; border-right: 3px solid #E07B39; }
+        #corner-bl { bottom: 6px; left: 6px; border-bottom: 3px solid #E07B39; border-left: 3px solid #E07B39; }
+        #corner-br { bottom: 6px; right: 6px; border-bottom: 3px solid #E07B39; border-right: 3px solid #E07B39; }
+
+        /* Ligne de scan animée */
+        #scan-line {
+            position: absolute;
+            left: 10%; width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #E07B39, transparent);
+            top: 10%;
+            display: none;
+            z-index: 3;
+            animation: scanMove 2s linear infinite;
+        }
+        @keyframes scanMove {
+            0%   { top: 10%; }
+            50%  { top: 85%; }
+            100% { top: 10%; }
+        }
+
+        #scanner-container button { margin: 12px 6px 0; }
+
+        /* ── Résultat ── */
+        #result {
+            margin: 16px 0;
+            padding: 12px 14px;
+            background-color: #EAF1F5;
+            border-left: 4px solid var(--steel);
+            border-radius: 2px;
+            display: none;
+            font-size: 0.92rem;
+            color: var(--charcoal);
+        }
+
+        /* ── Tableau ── */
+        table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.88rem; }
+        th, td { border: none; border-bottom: 1px solid var(--line); padding: 10px 6px; text-align: left; }
+        th {
+            background-color: var(--charcoal);
+            color: var(--paper);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.06em;
+        }
+        td:first-child, td:nth-child(4) {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--steel);
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background-color: #ECE8DD; }
+
+        input[type="number"] {
+            width: 64px; padding: 6px 4px;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid #B9C2C6; border-radius: 2px;
+            background: #fff; font-size: 0.9rem;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #E07B39;
+            box-shadow: 0 0 0 2px rgba(224,123,57,0.25);
+        }
+
+        /* ── Boutons ── */
+        button {
+            background-color: var(--steel);
+            color: var(--paper);
+            border: none;
+            padding: 11px 18px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 500;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+        button:hover { background-color: #2D4357; }
+        button:active { transform: translateY(1px); }
+        button:disabled { background-color: #C9C3B5; color: #8a857a; cursor: not-allowed; }
+
+        #startScanButton { background-color: var(--grey-light); color: var(--charcoal); }
+        #startScanButton:hover { background-color: var(--grey); }
+
+        #exportButton {
+            background-color: var(--yellow);
+            color: var(--charcoal);
+            margin-top: 20px;
+            width: 100%; padding: 14px;
+            font-size: 1rem; font-weight: 600;
+        }
+        #exportButton:hover { background-color: #F2B33D; }
+
+        #emailButton {
+            background-color: var(--green);
+            color: #fff;
+            margin-top: 10px;
+            width: 100%; padding: 13px;
+            font-size: 0.95rem; font-weight: 600;
+            display: none;
+        }
+        #emailButton:hover { background-color: #219a52; }
+
+        .btn-reset {
+            background-color: transparent;
+            color: #C0392B;
+            border: 1px solid #C0392B;
+            padding: 10px 18px; border-radius: 2px;
+            cursor: pointer;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 500; font-size: 0.85rem;
+            width: 100%; margin-top: 10px;
+            transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+        }
+        .btn-reset:hover { background-color: #C0392B; color: var(--paper); }
+        .btn-reset:active { transform: translateY(1px); }
+
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Gestion des Produits</h1>
+    <hr>
+
+    <div id="scanner-container">
+        <div id="scanner-wrapper">
+            <video id="scanner" autoplay playsinline muted></video>
+            <div id="corner-bl"></div>
+            <div id="corner-br"></div>
+            <div id="scan-line"></div>
+        </div>
+        <br>
+        <button id="startScanButton">Démarrer le scan</button>
+        <button id="stopScanButton" disabled>Arrêter le scan</button>
+    </div>
+
+    <div id="result"></div>
+
+    <h2>Produits scannés</h2>
+    <table id="productsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Nlle quantité</th>
+                <th>Réserve</th>
+                <th>Nlle réserve</th>
+            </tr>
+        </thead>
+        <tbody id="productsTableBody"></tbody>
+    </table>
+    <hr>
+
+    <button id="exportButton">⬇ Exporter la MAJ (CSV)</button>
+    <button id="emailButton">✉ Envoyer par email</button>
+    <button onclick="resetScannedProducts()" class="btn-reset">Réinitialiser</button>
+</div>
+<h3><img src="https://lyc-couffignal-strasbourg.site.ac-strasbourg.fr/public/images/logo2.png" /></h3>
+
+<!-- ZXing : bien plus robuste que jsQR (meilleure détection angles, flou, faible lumière) -->
+<script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+<script>
+    let codeReader = null;
+    let scannedProducts = JSON.parse(localStorage.getItem('scannedProducts')) || [];
+    let lastCSVContent = '';
+
+    const scannerEl      = document.getElementById('scanner');
+    const startScanBtn   = document.getElementById('startScanButton');
+    const stopScanBtn    = document.getElementById('stopScanButton');
+    const resultDiv      = document.getElementById('result');
+    const productsBody   = document.getElementById('productsTableBody');
+    const exportBtn      = document.getElementById('exportButton');
+    const emailBtn       = document.getElementById('emailButton');
+    const scanLine       = document.getElementById('scan-line');
+
+    startScanBtn.addEventListener('click', startScanning);
+    stopScanBtn.addEventListener('click', stopScanning);
+    exportBtn.addEventListener('click', exportToCSV);
+    emailBtn.addEventListener('click', sendByEmail);
+
+    loadScannedProducts();
+
+    // ── Scan ──────────────────────────────────────────────────────────────────
+
+    function startScanning() {
+        resultDiv.style.display = 'none';
+
+        if (!window.isSecureContext) {
+            showResult('<strong>Erreur : page non sécurisée.</strong><br>La caméra nécessite une URL en <code>https://</code>. Hébergez ce fichier sur Netlify ou GitHub Pages.');
+            return;
+        }
+
+        if (typeof ZXing === 'undefined') {
+            showResult('Erreur : la bibliothèque ZXing n\'a pas pu se charger. Vérifiez votre connexion.');
+            return;
+        }
+
+        startScanBtn.disabled = true;
+        stopScanBtn.disabled = false;
+        scanLine.style.display = 'block';
+
+        codeReader = new ZXing.BrowserQRCodeReader();
+
+        // Caméra arrière en haute résolution pour une meilleure détection
+        const constraints = {
+            video: {
+                facingMode: 'environment',
+                width:  { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        };
+
+        codeReader.decodeFromConstraints(constraints, scannerEl, (result, err) => {
+            if (result) {
+                stopScanning();
+                processQRCode(result.getText());
+            }
+            // Les erreurs "NotFoundException" sont normales (aucun QR visible), on les ignore
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                showResult('Erreur scan : ' + err.message);
+            }
+        }).catch(err => {
+            let msg = 'Erreur caméra (' + (err.name || err) + ')';
+            if (err.name === 'NotAllowedError')  msg += '<br>Permission refusée. Vérifiez les réglages du navigateur.';
+            if (err.name === 'NotFoundError')     msg += '<br>Aucune caméra détectée.';
+            if (err.name === 'NotReadableError')  msg += '<br>La caméra est peut-être utilisée par une autre app.';
+            showResult(msg);
+            startScanBtn.disabled = false;
+            stopScanBtn.disabled = true;
+            scanLine.style.display = 'none';
+        });
+    }
+
+    function stopScanning() {
+        if (codeReader) {
+            codeReader.reset();
+            codeReader = null;
+        }
+        scannerEl.srcObject = null;
+        startScanBtn.disabled = false;
+        stopScanBtn.disabled = true;
+        scanLine.style.display = 'none';
+    }
+
+    // ── Traitement QR ─────────────────────────────────────────────────────────
+
+    function processQRCode(qrData) {
+        try {
+            const product = JSON.parse(qrData);
+            if (!product.ID || product["Nom du produit"] === undefined) {
+                showResult('QR code invalide : données manquantes (ID ou Nom du produit absent).');
+                return;
+            }
+            if (scannedProducts.findIndex(p => p.ID === product.ID) !== -1) {
+                showResult('⚠ Ce produit a déjà été scanné.');
+                return;
+            }
+            scannedProducts.push({
+                ID: product.ID,
+                Nom: product["Nom du produit"],
+                NouvelleQuantite: product["Quantité entamée"] || 0,
+                Reserve: product["Réserve"] || 0,
+                NouvelleReserve: product["Réserve"] || 0
+            });
+            localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts));
+            loadScannedProducts();
+            showResult('✔ Produit scanné : ' + product["Nom du produit"]);
+        } catch (e) {
+            showResult('Erreur : QR code non valide (format JSON attendu).');
+        }
+    }
+
+    // ── Tableau ───────────────────────────────────────────────────────────────
+
+    function loadScannedProducts() {
+        productsBody.innerHTML = '';
+        scannedProducts.forEach(product => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${product.ID}</td>
+                <td>${product.Nom}</td>
+                <td><input type="number" value="${product.NouvelleQuantite}"
+                     data-id="${product.ID}" data-field="NouvelleQuantite" class="quantity-input"></td>
+                <td>${product.Reserve}</td>
+                <td><input type="number" value="${product.NouvelleReserve}"
+                     data-id="${product.ID}" data-field="NouvelleReserve" class="quantity-input"></td>
+            `;
+            productsBody.appendChild(row);
+        });
+
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function () {
+                const id    = parseInt(this.getAttribute('data-id'));
+                const field = this.getAttribute('data-field');
+                const val   = parseInt(this.value);
+                const p     = scannedProducts.find(p => p.ID === id);
+                if (p) { p[field] = val; localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts)); }
+            });
+        });
+    }
+
+    // ── Export CSV ────────────────────────────────────────────────────────────
+
+function buildCSV() {
+    const headers = ['ID', 'Nom du produit', 'Quantite entamnee', 'Reserve entamnee'];
+    const rows = scannedProducts.map(p => [
+        p.ID,
+        '"' + String(p.Nom).replace(/"/g, '""') + '"', // Gestion des guillemets dans les noms
+        p.NouvelleQuantite,
+        p.NouvelleReserve
+    ]);
+    return [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+}
+    function exportToCSV() {
+        if (scannedProducts.length === 0) { showResult('Aucun produit scanné à exporter.'); return; }
+
+        lastCSVContent = buildCSV();
+
+        // BOM UTF-8 pour ouverture correcte dans Excel
+        const blob = new Blob(['\uFEFF' + lastCSVContent], { type: 'text/csv;charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url;
+        a.download = 'MAJ_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showResult('✔ Export CSV réussi ! Vous pouvez aussi l\'envoyer par email ci-dessous.');
+        emailBtn.style.display = 'block';
+    }
+
+    // ── Envoi email ───────────────────────────────────────────────────────────
+
+    function sendByEmail() {
+        if (!lastCSVContent) { lastCSVContent = buildCSV(); }
+
+        const date    = new Date().toLocaleDateString('fr-FR');
+        const subject = encodeURIComponent('MAJ Inventaire Couffignal – ' + date);
+
+        // Corps du mail : tableau lisible + données brutes CSV
+        const lines   = lastCSVContent.split('\r\n');
+        let bodyText  = 'Mise à jour inventaire Lycée Couffignal – ' + date + '\n\n';
+        bodyText += lines.join('\n');
+        bodyText += '\n\n(Le fichier CSV a également été téléchargé sur votre appareil.)';
+
+        const mailtoLink = 'mailto:?subject=' + subject + '&body=' + encodeURIComponent(bodyText);
+        window.location.href = mailtoLink;
+    }
+
+    // ── Reset ─────────────────────────────────────────────────────────────────
+
+    function resetScannedProducts() {
+        if (confirm('Êtes-vous sûr de vouloir tout réinitialiser ?')) {
+            localStorage.removeItem('scannedProducts');
+            location.reload();
+        }
+    }
+
+    // ── Utilitaire ────────────────────────────────────────────────────────────
+
+    function showResult(html) {
+        resultDiv.innerHTML = html;
+        resultDiv.style.display = 'block';
+    }
+</script>
+</body>
+</html>
