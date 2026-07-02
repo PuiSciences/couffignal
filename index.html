@@ -255,29 +255,33 @@
             margin: 10px 0;
             font-weight: 600;
         }
-.btn-reset {
-    background-color: transparent;
-    color: #C0392B;
-    border: 1px solid #C0392B;
-    padding: 10px 18px;
-    border-radius: 2px;
-    cursor: pointer;
-    font-family: 'Oswald', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-weight: 500;
-    font-size: 0.85rem;
-    width: 100%;
-    margin-top: 10px;
-    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
-}
-.btn-reset:hover {
-    background-color: #C0392B;
-    color: var(--paper);
-}
-.btn-reset:active {
-    transform: translateY(1px);
-}
+
+        .btn-reset {
+            background-color: transparent;
+            color: #C0392B;
+            border: 1px solid #C0392B;
+            padding: 10px 18px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 500;
+            font-size: 0.85rem;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+        }
+
+        .btn-reset:hover {
+            background-color: #C0392B;
+            color: var(--paper);
+        }
+
+        .btn-reset:active {
+            transform: translateY(1px);
+        }
+
         @media (prefers-reduced-motion: reduce) {
             * { transition: none !important; }
         }
@@ -286,7 +290,7 @@
 <body>
     <div class="container">
         <h1>Gestion des Produits</h1>
-		<hr>
+        <hr>
 
         <div id="scanner-container">
             <video id="scanner" autoplay playsinline muted></video><br/>
@@ -303,27 +307,24 @@
                     <th>ID</th>
                     <th>Nom</th>
                     <th>Nlle quantité</th>
-					<th>Réserve</th>
+                    <th>Réserve</th>
                     <th>Nlle réserve</th>
                 </tr>
             </thead>
             <tbody id="productsTableBody"></tbody>
         </table>
-		<hr>
+        <hr>
 
-        <button id="exportButton">Exporter la MAJ</button>
-		<button onclick="resetScannedProducts()" class="btn-reset">Réinitialiser</button>
+        <button id="exportButton">Exporter la MAJ (CSV)</button>
+        <button onclick="resetScannedProducts()" class="btn-reset">Réinitialiser</button>
     </div>
-	<h3><img src="https://lyc-couffignal-strasbourg.site.ac-strasbourg.fr/public/images/logo2.png"  />
-	</h3>
+    <h3><img src="https://lyc-couffignal-strasbourg.site.ac-strasbourg.fr/public/images/logo2.png" /></h3>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script>
-        // Variables globales
         let scannerStream = null;
         let scannedProducts = JSON.parse(localStorage.getItem('scannedProducts')) || [];
 
-        // DOM Elements
         const scanner = document.getElementById('scanner');
         const startScanButton = document.getElementById('startScanButton');
         const stopScanButton = document.getElementById('stopScanButton');
@@ -331,38 +332,31 @@
         const productsTableBody = document.getElementById('productsTableBody');
         const exportButton = document.getElementById('exportButton');
 
-        // Démarrer le scan
         startScanButton.addEventListener('click', startScanning);
         stopScanButton.addEventListener('click', stopScanning);
-        exportButton.addEventListener('click', exportToJSON);
+        exportButton.addEventListener('click', exportToCSV);
 
-        // Charger les produits déjà scannés
         loadScannedProducts();
 
-        // Fonction pour démarrer le scan
         function startScanning() {
             resultDiv.style.display = 'none';
 
-            // Vérification du contexte sécurisé (HTTPS ou localhost obligatoire)
-            const isSecure = window.isSecureContext;
-            if (!isSecure) {
+            if (!window.isSecureContext) {
                 resultDiv.innerHTML = "<strong>Erreur : page non sécurisée.</strong><br>" +
                     "L'accès à la caméra n'est autorisé que sur une page ouverte en <code>https://</code> " +
-                    "(ou en local sur <code>localhost</code>). Cette page semble ouverte directement " +
-                    "depuis un fichier (<code>" + window.location.protocol + "</code>), ce qui bloque la caméra. " +
-                    "Hébergez ce fichier (ex : Netlify, GitHub Pages) puis ouvrez-le via une URL https://.";
+                    "(ou en local sur <code>localhost</code>). Hébergez ce fichier (ex : Netlify, GitHub Pages) puis ouvrez-le via une URL https://.";
                 resultDiv.style.display = 'block';
                 return;
             }
 
             if (typeof jsQR !== 'function') {
-                resultDiv.textContent = "Erreur : la bibliothèque de lecture de QR code (jsQR) n'a pas pu se charger. Vérifiez votre connexion internet ou désactivez un éventuel bloqueur de publicités, puis rechargez la page.";
+                resultDiv.textContent = "Erreur : la bibliothèque jsQR n'a pas pu se charger. Vérifiez votre connexion ou désactivez un bloqueur de pub, puis rechargez.";
                 resultDiv.style.display = 'block';
                 return;
             }
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                resultDiv.textContent = "Erreur : votre navigateur ne supporte pas l'accès à la caméra (getUserMedia indisponible).";
+                resultDiv.textContent = "Erreur : votre navigateur ne supporte pas l'accès à la caméra.";
                 resultDiv.style.display = 'block';
                 return;
             }
@@ -375,31 +369,25 @@
                     scannerStream = stream;
                     scanner.srcObject = stream;
 
-                    // La vidéo a l'attribut autoplay : il se peut que les métadonnées
-                    // soient déjà chargées avant qu'on attache l'écouteur ci-dessous.
-                    // On vérifie donc d'abord le readyState pour éviter de manquer l'événement.
                     const startLoop = () => {
                         scanner.play();
                         requestAnimationFrame(scanQRCode);
                     };
 
                     if (scanner.readyState >= 1) {
-                        // HAVE_METADATA ou plus : les dimensions sont déjà disponibles
                         startLoop();
                     } else {
                         scanner.onloadedmetadata = startLoop;
                     }
                 })
                 .catch(err => {
-                    console.error("Erreur d'accès à la caméra :", err);
-                    let message = "Erreur : Impossible d'accéder à la caméra. (" + err.name + ")";
-                    if (err.name === "NotAllowedError") {
-                        message += "<br>La permission caméra a été refusée. Vérifiez les réglages de permissions de votre navigateur pour ce site.";
-                    } else if (err.name === "NotFoundError") {
-                        message += "<br>Aucune caméra n'a été détectée sur cet appareil.";
-                    } else if (err.name === "NotReadableError") {
-                        message += "<br>La caméra est peut-être déjà utilisée par une autre application.";
-                    }
+                    let message = "Erreur caméra (" + err.name + ")";
+                    if (err.name === "NotAllowedError")
+                        message += "<br>Permission refusée. Vérifiez les réglages du navigateur pour ce site.";
+                    else if (err.name === "NotFoundError")
+                        message += "<br>Aucune caméra détectée.";
+                    else if (err.name === "NotReadableError")
+                        message += "<br>La caméra est peut-être utilisée par une autre application.";
                     resultDiv.innerHTML = message;
                     resultDiv.style.display = 'block';
                     startScanButton.disabled = false;
@@ -407,7 +395,6 @@
                 });
         }
 
-        // Fonction pour arrêter le scan
         function stopScanning() {
             if (scannerStream) {
                 scannerStream.getTracks().forEach(track => track.stop());
@@ -418,15 +405,11 @@
             stopScanButton.disabled = true;
         }
 
-        // Fonction pour scanner le QR code en continu
         function scanQRCode() {
-            if (!scannerStream) {
-                return;
-            }
+            if (!scannerStream) return;
 
             try {
                 if (!scanner.videoWidth || !scanner.videoHeight) {
-                    // La vidéo n'est pas encore prête, on réessaie à la prochaine frame
                     requestAnimationFrame(scanQRCode);
                     return;
                 }
@@ -446,28 +429,24 @@
                     requestAnimationFrame(scanQRCode);
                 }
             } catch (e) {
-                console.error("Erreur pendant le scan :", e);
                 resultDiv.textContent = "Erreur pendant le scan : " + e.message;
                 resultDiv.style.display = 'block';
                 requestAnimationFrame(scanQRCode);
             }
         }
 
-        // Fonction pour traiter le QR code scanné
         function processQRCode(qrData) {
             try {
                 const product = JSON.parse(qrData);
                 if (product.ID && product["Nom du produit"] !== undefined) {
-                    // Vérifier si le produit est déjà scanné
                     const existingIndex = scannedProducts.findIndex(p => p.ID === product.ID);
                     if (existingIndex === -1) {
-                        // Ajouter le produit avec une nouvelle quantité par défaut
                         scannedProducts.push({
                             ID: product.ID,
                             Nom: product["Nom du produit"],
                             NouvelleQuantite: product["Quantité entamée"] || 0,
-							Reserve: product["Réserve"] || 0,
-							NouvelleReserve: product["Réserve"] || 0
+                            Reserve: product["Réserve"] || 0,
+                            NouvelleReserve: product["Réserve"] || 0
                         });
                     } else {
                         resultDiv.textContent = "Ce produit a déjà été scanné.";
@@ -475,13 +454,9 @@
                         return;
                     }
 
-                    // Sauvegarder dans le localStorage
                     localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts));
-
-                    // Mettre à jour le tableau
                     loadScannedProducts();
-
-                    resultDiv.textContent = `Produit scanné : ${product["Nom du produit"]}`;
+                    resultDiv.textContent = `✔ Produit scanné : ${product["Nom du produit"]}`;
                     resultDiv.style.display = 'block';
                 } else {
                     resultDiv.textContent = "QR code invalide : données manquantes.";
@@ -490,11 +465,9 @@
             } catch (e) {
                 resultDiv.textContent = "Erreur : QR code non valide (format JSON attendu).";
                 resultDiv.style.display = 'block';
-                console.error(e);
             }
         }
 
-        // Fonction pour charger les produits scannés dans le tableau
         function loadScannedProducts() {
             productsTableBody.innerHTML = '';
             scannedProducts.forEach(product => {
@@ -506,72 +479,77 @@
                         <input type="number"
                                value="${product.NouvelleQuantite}"
                                data-id="${product.ID}"
+                               data-field="NouvelleQuantite"
                                class="quantity-input">
                     </td>
-					    <td>${product.Reserve}</td>
+                    <td>${product.Reserve}</td>
                     <td>
                         <input type="number"
                                value="${product.NouvelleReserve}"
                                data-id="${product.ID}"
+                               data-field="NouvelleReserve"
                                class="quantity-input">
                     </td>
                 `;
                 productsTableBody.appendChild(row);
             });
 
-            // Ajouter des écouteurs d'événements pour les champs de quantité
             document.querySelectorAll('.quantity-input').forEach(input => {
                 input.addEventListener('change', function() {
                     const id = parseInt(this.getAttribute('data-id'));
-                    const newQuantity = parseInt(this.value);
+                    const field = this.getAttribute('data-field');
+                    const value = parseInt(this.value);
                     const product = scannedProducts.find(p => p.ID === id);
                     if (product) {
-                        product.NouvelleQuantite = newQuantity;
+                        product[field] = value;
                         localStorage.setItem('scannedProducts', JSON.stringify(scannedProducts));
                     }
                 });
             });
         }
 
-        // Fonction pour exporter en JSON
-        function exportToJSON() {
+        function exportToCSV() {
             if (scannedProducts.length === 0) {
                 resultDiv.textContent = "Aucun produit scanné à exporter.";
                 resultDiv.style.display = 'block';
                 return;
             }
 
-            // Créer un objet avec uniquement ID et NouvelleQuantite
-            const exportData = scannedProducts.map(product => ({
-                ID: product.ID,
-                NouvelleQuantite: product.NouvelleQuantite
-            }));
+            // En-tête CSV
+            const headers = ['ID', 'Nom du produit', 'Nouvelle quantité', 'Nouvelle réserve'];
 
-            // Convertir en JSON
-            const jsonData = JSON.stringify(exportData, null, 2);
+            // Lignes CSV — on échappe les guillemets dans les valeurs texte
+            const rows = scannedProducts.map(p => [
+                p.ID,
+                '"' + String(p.Nom).replace(/"/g, '""') + '"',
+                p.NouvelleQuantite,
+                p.NouvelleReserve
+            ]);
 
-            // Créer un lien de téléchargement
-            const blob = new Blob([jsonData], { type: 'application/json' });
+            const csvContent = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+
+            // BOM UTF-8 pour que Excel l'ouvre correctement
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-			a.download = 'MAJ_' + new Date().toISOString() + '.json';            document.body.appendChild(a);
+            a.download = 'MAJ_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.csv';
+            document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            resultDiv.textContent = "Données exportées avec succès !";
+            resultDiv.textContent = "✔ Export CSV réussi !";
             resultDiv.style.display = 'block';
         }
-		function resetScannedProducts() {
-    if (confirm("Êtes-vous sûr de vouloir tout réinitialiser ?")) {
-        localStorage.removeItem('scannedProducts');
-        scannedProducts = [];
-        updateProductList();
-        resultDiv.textContent = "Données réinitialisées.";
-        resultDiv.style.display = 'block';
-    }
-}
+
+        function resetScannedProducts() {
+            if (confirm("Êtes-vous sûr de vouloir tout réinitialiser ?")) {
+                localStorage.removeItem('scannedProducts');
+                // Rechargement complet de la page (équivalent F5)
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>
