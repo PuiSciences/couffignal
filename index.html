@@ -427,7 +427,7 @@
     // ── Export CSV ────────────────────────────────────────────────────────────
 
     function buildCSV() {
-        const headers = ['ID', 'Nom du produit', 'Nouvelle quantité', 'Nouvelle réserve'];
+        const headers = ['ID', 'Nom du produit', 'Quantite entamnee', 'Reserve entamnee'];
         const rows = scannedProducts.map(p => [
             p.ID,
             '"' + String(p.Nom).replace(/"/g, '""') + '"',
