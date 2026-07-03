@@ -425,12 +425,11 @@
     // ── Export CSV ────────────────────────────────────────────────────────────
 
 function buildCSV() {
-    const headers = ['ID', 'Nom du produit', 'Quantite entamnee', 'Reserve entamnee'];
+    const headers = ['ID', 'Quantite entamnee', 'Reserve entamnee'];
     const rows = scannedProducts.map(p => [
         p.ID,
-        '"' + String(p.Nom).replace(/"/g, '""') + '"', // Gestion des guillemets dans les noms
         p.NouvelleQuantite,
-        p.NouvelleReserve
+        p.NouvelleReserve,
     ]);
     return [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
 }
