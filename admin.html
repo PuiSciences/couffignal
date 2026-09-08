@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ Admin - Météo des salles</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-wrap">
+        <h1>⚙️ Admin - Météo des salles</h1>
+
+        <div class="admin-intro">
+            Modifie les salles, tickets et tâches labo ci-dessous, puis clique sur
+            <strong>"Générer data.js"</strong> en bas. Copie le résultat (ou télécharge le fichier)
+            et remplace <code>data.js</code> dans ton dépôt GitHub. Rien n'est sauvegardé automatiquement :
+            si tu recharges la page sans avoir généré/téléchargé, tes modifications sont perdues.
+        </div>
+
+        <div class="toolbar">
+            <button onclick="addSalle()">➕ Ajouter une salle</button>
+            <button onclick="location.href='index.html'">⬅️ Retour au tableau de bord</button>
+        </div>
+
+        <div id="sallesContainer"></div>
+
+        <div class="toolbar">
+            <button id="generateBtn" onclick="generateOutput()">✅ Générer data.js</button>
+        </div>
+
+        <div id="outputWrap">
+            <p><strong>Résultat :</strong> copie ce texte dans <code>data.js</code>, ou télécharge directement.</p>
+            <textarea id="output" readonly></textarea>
+            <div class="toolbar">
+                <button onclick="copyOutput()">📋 Copier</button>
+                <button onclick="downloadOutput()">⬇️ Télécharger data.js</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- On charge les données existantes comme point de départ -->
+    <script src="data.js"></script>
+    <script>
+        // Copie de travail (on ne modifie jamais "salles" directement,
+        // pour ne pas dépendre de l'ordre de chargement)
+        let workingData = JSON.parse(JSON.stringify(salles));
+
+        const STATUS_OPTIONS = ["ok", "warning", "error"];
+        const ITEM_STATUS_OPTIONS = ["À faire", "Vu", "Fait"];
+        const PRIORITY_OPTIONS = [
+            { value: 0, label: "Aucune" },
+            { value: 1, label: "Faible" },
+            { value: 2, label: "Élevée" }
+        ];
+
+        function render() {
+            const container = document.getElementById("sallesContainer");
+            container.innerHTML = "";
+            workingData.forEach((salle, sIndex) => {
+                const block = document.createElement("div");
+                block.className = "salle-block";
+
+                block.innerHTML = `
+                    <div class="salle-block-header">
+                        <input type="text" value="${escapeAttr(salle.id)}"
+                            onchange="updateSalleField(${sIndex}, 'id', this.value)" />
+                        <label>Statut :</label>
+                        <select onchange="updateSalleField(${sIndex}, 'status', this.value)">
+                            ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === salle.status ? "selected" : ""}>${s}</option>`).join("")}
+                        </select>
+                        <button class="remove-btn" onclick="removeSalle(${sIndex})">🗑️ Supprimer la salle</button>
+                    </div>
+
+                    <div class="sub-section-title">🎫 Tickets (Maintenance)</div>
+                    <div id="tickets-${sIndex}"></div>
+                    <button class="small-btn add-item-btn" onclick="addItem(${sIndex}, 'tickets')">+ Ajouter un ticket</button>
+
+                    <div class="sub-section-title">🔧 Boulot Labo</div>
+                    <div id="labo-${sIndex}"></div>
+                    <button class="small-btn add-item-btn" onclick="addItem(${sIndex}, 'labo')">+ Ajouter une tâche labo</button>
+                `;
+                container.appendChild(block);
+
+                renderItems(sIndex, "tickets");
+                renderItems(sIndex, "labo");
+            });
+        }
+
+        function renderItems(sIndex, type) {
+            const wrap = document.getElementById(`${type}-${sIndex}`);
+            const items = workingData[sIndex][type];
+            wrap.innerHTML = "";
+            items.forEach((item, iIndex) => {
+                const row = document.createElement("div");
+                row.className = `item-row ${type === "tickets" ? "ticket-row" : "labo-row"}`;
+                row.innerHTML = `
+                    <input type="text" placeholder="Description" value="${escapeAttr(item.description)}"
+                        onchange="updateItemField(${sIndex}, '${type}', ${iIndex}, 'description', this.value)" />
+                    <select onchange="updateItemField(${sIndex}, '${type}', ${iIndex}, 'status', this.value)">
+                        ${ITEM_STATUS_OPTIONS.map(s => `<option value="${s}" ${s === item.status ? "selected" : ""}>${s}</option>`).join("")}
+                    </select>
+                    <select onchange="updateItemField(${sIndex}, '${type}', ${iIndex}, 'priority', Number(this.value))">
+                        ${PRIORITY_OPTIONS.map(p => `<option value="${p.value}" ${p.value === item.priority ? "selected" : ""}>${p.label}</option>`).join("")}
+                    </select>
+                    <input type="text" placeholder="Date" value="${escapeAttr(item.date)}"
+                        onchange="updateItemField(${sIndex}, '${type}', ${iIndex}, 'date', this.value)" />
+                    <button class="remove-btn small-btn" onclick="removeItem(${sIndex}, '${type}', ${iIndex})">✕</button>
+                `;
+                wrap.appendChild(row);
+            });
+        }
+
+        function updateSalleField(sIndex, field, value) {
+            workingData[sIndex][field] = value;
+        }
+
+        function updateItemField(sIndex, type, iIndex, field, value) {
+            workingData[sIndex][type][iIndex][field] = value;
+        }
+
+        function addSalle() {
+            const id = prompt("Identifiant de la salle (ex: C110) :");
+            if (!id) return;
+            workingData.push({ id: id, status: "ok", tickets: [], labo: [] });
+            render();
+        }
+
+        function removeSalle(sIndex) {
+            if (!confirm(`Supprimer la salle "${workingData[sIndex].id}" ?`)) return;
+            workingData.splice(sIndex, 1);
+            render();
+        }
+
+        function addItem(sIndex, type) {
+            workingData[sIndex][type].push({
+                description: "",
+                status: "À faire",
+                priority: 1,
+                date: new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
+            });
+            render();
+        }
+
+        function removeItem(sIndex, type, iIndex) {
+            workingData[sIndex][type].splice(iIndex, 1);
+            render();
+        }
+
+        function escapeAttr(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+        }
+
+        function generateOutput() {
+            const header = `// ============================================================
+// DONNÉES DES SALLES
+// C'est CE fichier qu'on modifie pour mettre à jour la météo des salles.
+// Pas besoin de toucher au HTML, au CSS ou au script.js.
+// Généré via admin.html le ${new Date().toLocaleDateString("fr-FR")}
+// ============================================================
+
+const salles = `;
+            const body = JSON.stringify(workingData, null, 4);
+            const output = header + body + ";\n";
+            document.getElementById("output").value = output;
+            document.getElementById("outputWrap").style.display = "block";
+            document.getElementById("outputWrap").scrollIntoView({ behavior: "smooth" });
+        }
+
+        function copyOutput() {
+            const output = document.getElementById("output");
+            output.select();
+            document.execCommand("copy");
+            alert("Copié dans le presse-papier !");
+        }
+
+        function downloadOutput() {
+            const text = document.getElementById("output").value;
+            const blob = new Blob([text], { type: "text/javascript" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "data.js";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        render();
+    </script>
+</body>
+</html>
