@@ -8,7 +8,7 @@
 const salles = [
     {
         "id": "C117",
-        "status": "warning",
+        "status": "ok",
         "tickets": [
             {
                 "description": "Mettre des poignées sur les portes des ordis",
@@ -115,7 +115,7 @@ const salles = [
     },
     {
         "id": "F314",
-        "status": "ok",
+        "status": "warning",
         "tickets": [
             {
                 "description": "Un ordi sans Latis pro (n°3)",
