@@ -2,6 +2,7 @@
 // DONNÉES DES SALLES
 // C'est CE fichier qu'on modifie pour mettre à jour la météo des salles.
 // Pas besoin de toucher au HTML, au CSS ou au script.js.
+// Généré via admin.html le 08/09/2026
 // ============================================================
 
 const salles = [
@@ -16,18 +17,6 @@ const salles = [
                 "date": "Juin 2026"
             },
             {
-                "description": "1 chaise HS",
-                "status": "À faire",
-                "priority": 2,
-                "date": "Juin 2026"
-            },
-            {
-                "description": "Robinets à resserrer",
-                "status": "À faire",
-                "priority": 1,
-                "date": "Juin 2026"
-            },
-            {
                 "description": "Possibilité de mettre rideau au moins sur 2 fenêtres ?",
                 "status": "À faire",
                 "priority": 1,
@@ -36,27 +25,15 @@ const salles = [
         ],
         "labo": [
             {
-                "description": "Ajouter étiquettes 4 souris",
-                "status": "Fait",
-                "priority": 0,
-                "date": "Juin 2026"
-            },
-            {
-                "description": "Ajouter porte-clé/étiquette clés pour les PC",
-                "status": "Fait",
-                "priority": 0,
-                "date": "Juin 2026"
-            },
-            {
                 "description": "Panneau occultant à mettre : message à envoyer à la direction",
-                "status": "À faire",
+                "status": "Fait",
                 "priority": 2,
                 "date": "Juin 2026"
             },
             {
-                "description": "Ajout tapis souris fait",
+                "description": "Mettre des poignées sur les portes des ordis : message envoyé",
                 "status": "Fait",
-                "priority": 0,
+                "priority": 1,
                 "date": "Juin 2026"
             }
         ]
@@ -66,14 +43,8 @@ const salles = [
         "status": "warning",
         "tickets": [
             {
-                "description": "2 carrés de néon au-dessus du bureau HS",
-                "status": "À faire",
-                "priority": 2,
-                "date": "Juin 2026"
-            },
-            {
-                "description": "2 fenêtres sans volet",
-                "status": "À faire",
+                "description": "2 carrés de néon au-dessus du bureau HS :  A vérifier",
+                "status": "Vu",
                 "priority": 1,
                 "date": "Juin 2026"
             },
@@ -92,7 +63,7 @@ const salles = [
                 "date": "Juin 2026"
             },
             {
-                "description": "Ajout tapis souris fait",
+                "description": "Panneau occultant à mettre : message à envoyer à la direction",
                 "status": "Fait",
                 "priority": 0,
                 "date": "Juin 2026"
@@ -145,8 +116,22 @@ const salles = [
     {
         "id": "F314",
         "status": "ok",
-        "tickets": [],
-        "labo": []
+        "tickets": [
+            {
+                "description": "Un ordi sans Latis pro (n°3)",
+                "status": "Vu",
+                "priority": 2,
+                "date": "septembre 2026"
+            }
+        ],
+        "labo": [
+            {
+                "description": "Ticket ordi fait",
+                "status": "À faire",
+                "priority": 1,
+                "date": "septembre 2026"
+            }
+        ]
     },
     {
         "id": "F316",
