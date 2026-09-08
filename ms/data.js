@@ -85,27 +85,89 @@ const salles = [
     },
     {
         "id": "C102",
-        "status": "ok",
-        "tickets": [],
-        "labo": []
+        "status": "warning",
+        "tickets": [
+            {
+                "description": "Paillasse 1 et 5 + bureau : pas d'atelier scientifique ",
+                "status": "À faire",
+                "priority": 2,
+                "date": "septembre 2026"
+            },
+            {
+                "description": "Paillasse 6 : Pc qui ne s'alume pas",
+                "status": "À faire",
+                "priority": 2,
+                "date": "septembre 2026"
+            }
+        ],
+        "labo": [
+            {
+                "description": "Ticket info ",
+                "status": "Fait",
+                "priority": 2,
+                "date": "septembre 2026"
+            }
+        ]
     },
     {
         "id": "C104",
         "status": "ok",
-        "tickets": [],
-        "labo": []
+        "tickets": [
+            {
+                "description": "pas d'atelier scientifique ",
+                "status": "À faire",
+                "priority": 1,
+                "date": "septembre 2026"
+            }
+        ],
+        "labo": [
+            {
+                "description": "Ticket info ",
+                "status": "À faire",
+                "priority": 1,
+                "date": "septembre 2026"
+            }
+        ]
     },
     {
         "id": "C106",
         "status": "ok",
-        "tickets": [],
-        "labo": []
+        "tickets": [
+            {
+                "description": "pas d'atelier scientifique ",
+                "status": "À faire",
+                "priority": 1,
+                "date": "septembre 2026"
+            }
+        ],
+        "labo": [
+            {
+                "description": "Ticket info ",
+                "status": "À faire",
+                "priority": 1,
+                "date": "septembre 2026"
+            }
+        ]
     },
     {
         "id": "C108",
         "status": "ok",
-        "tickets": [],
-        "labo": []
+        "tickets": [
+            {
+                "description": "Redy non installé",
+                "status": "À faire",
+                "priority": 1,
+                "date": "septembre 2026"
+            }
+        ],
+        "labo": [
+            {
+                "description": "Ticket info ",
+                "status": "À faire",
+                "priority": 1,
+                "date": "septembre 2026"
+            }
+        ]
     },
     {
         "id": "F311",
