@@ -16,10 +16,20 @@
         <button onclick="filterProblems('all')">Tous les problèmes</button>
         <button onclick="filterProblems('ticket')">Tickets (Maintenance)</button>
         <button onclick="filterProblems('labo')">Boulot Labo</button>
+        <button onclick="generateTicketList()">📋 Liste des tickets à copier</button>
     </div>
 
     <!-- Tableau de bord -->
     <div class="dashboard" id="dashboard"></div>
+
+    <!-- Liste copiable des tickets, groupée par salle -->
+    <div id="ticketListWrap">
+        <h2>📋 Liste des tickets (copier/coller)</h2>
+        <textarea id="ticketListOutput" readonly></textarea>
+        <div class="filters">
+            <button onclick="copyTicketList()">📋 Copier</button>
+        </div>
+    </div>
 
     <!-- Liste des problèmes -->
     <div class="problems" id="problemsList"></div>
