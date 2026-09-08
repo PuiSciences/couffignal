@@ -12,8 +12,8 @@ const salles = [
         "tickets": [
             {
                 "description": "Mettre des poignées sur les portes des ordis",
-                "status": "À faire",
-                "priority": 2,
+                "status": "Vu",
+                "priority": 1,
                 "date": "Juin 2026"
             },
             {
@@ -26,8 +26,8 @@ const salles = [
         "labo": [
             {
                 "description": "Panneau occultant à mettre : message à envoyer à la direction",
-                "status": "Fait",
-                "priority": 2,
+                "status": "Vu",
+                "priority": 1,
                 "date": "Juin 2026"
             },
             {
@@ -58,7 +58,7 @@ const salles = [
         "labo": [
             {
                 "description": "Panneau occultant à mettre : message à envoyer à la direction",
-                "status": "À faire",
+                "status": "Vu",
                 "priority": 2,
                 "date": "Juin 2026"
             },
@@ -77,7 +77,7 @@ const salles = [
         "labo": [
             {
                 "description": "Volets occultants demandés (pas de dernier bilan)",
-                "status": "À faire",
+                "status": "Vu",
                 "priority": 2,
                 "date": "Juin 2026"
             }
@@ -89,13 +89,13 @@ const salles = [
         "tickets": [
             {
                 "description": "Paillasse 1 et 5 + bureau : pas d'atelier scientifique ",
-                "status": "À faire",
+                "status": "Vu",
                 "priority": 2,
                 "date": "septembre 2026"
             },
             {
                 "description": "Paillasse 6 : Pc qui ne s'alume pas",
-                "status": "À faire",
+                "status": "Fait",
                 "priority": 2,
                 "date": "septembre 2026"
             }
@@ -115,7 +115,7 @@ const salles = [
         "tickets": [
             {
                 "description": "pas d'atelier scientifique ",
-                "status": "À faire",
+                "status": "Vu",
                 "priority": 1,
                 "date": "septembre 2026"
             }
@@ -123,7 +123,7 @@ const salles = [
         "labo": [
             {
                 "description": "Ticket info ",
-                "status": "À faire",
+                "status": "Fait",
                 "priority": 1,
                 "date": "septembre 2026"
             }
@@ -143,7 +143,7 @@ const salles = [
         "labo": [
             {
                 "description": "Ticket info ",
-                "status": "À faire",
+                "status": "Fait",
                 "priority": 1,
                 "date": "septembre 2026"
             }
@@ -202,4 +202,3 @@ const salles = [
         "labo": []
     }
 ];
-
