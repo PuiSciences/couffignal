@@ -207,7 +207,7 @@ const salles = [
         "status": "ok",
         "tickets": [],
         "labo": []
-    }
+    },
     {
         "id": "C 110-113",
         "status": "ok",
@@ -220,5 +220,5 @@ const salles = [
                 "date": "Juin 2026"
             }
         ]
-    },
+    }
 ];
