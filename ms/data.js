@@ -56,7 +56,7 @@ const salles = [
     },
     {
         "id": "C106",
-        "status": "ok",
+        "status": "warning",
         "tickets": [
             {
                 "description": "pas d'atelier scientifique ",
