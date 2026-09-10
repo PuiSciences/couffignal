@@ -210,7 +210,7 @@ const salles = [
     }
     {
         "id": "C 110-113",
-        "status": "warning",
+        "status": "ok",
         "tickets": [],
         "labo": [
             {
