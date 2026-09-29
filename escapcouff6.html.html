@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Escape game QR — Lycée Couffignal</title>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<!-- Jost : police web libre la plus proche du Futura Std de la charte graphique -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+    :root {
+    --gres-fonce: #462d35;   /* grès très sombre (fond page / zones vidéo) */
+    --gres-sombre: #66444f;  /* grès sombre (cartes, pistes) */
+    --gres: #835767;         /* grès de référence (boutons, choix) */
+    --gres-moyen: #8e6573;   /* grès moyen (bordures, hover) */
+    --gres-clair: #a4828e;   /* grès clair (textes secondaires sur fond sombre) */
+    --tres-clair: #e9e1e5;   /* grès très clair (texte principal sur fond sombre) */
+    --olive-fonce: #45451d;  /* olive très sombre (badge) */
+    --olive-sombre: #5e5c2a;
+    --olive: #99983f;        /* olive de référence (valider, progression) */
+    --olive-clair: #b4b67d;  /* olive clair (bordures, texte ok) */
+    --olive-pale: #d7d8cb;
+    --bleu-fonce: #3a5e81;
+    --bleu: #4876a2;          /* bleu de référence (actions caméra) */
+    --bleu-clair: #7fabdc;
+    --jaune: #e5c500;         /* jaune complémentaire (ligne de scan) */
+    --rouge: #9f1730;         /* rouge complémentaire (erreurs) */
+    --rouge-clair: #c27371;
+    --font-titre: 'Jost', 'Futura', 'Futura PT', 'Century Gothic', 'CenturyGothic', 'AppleGothic', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { min-height: 100vh; background: var(--gres-fonce); color: var(--tres-clair); display: flex; justify-content: center; padding: 20px; }
+  .wrap { width: 100%; max-width: 680px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .header h1 { font-size: 1.35rem; font-family: var(--font-titre); font-weight: 700; letter-spacing: .06em; color: var(--tres-clair); display: flex; align-items: center; }
+  .logo-plate { background: #fff; border-radius: 10px; padding: 4px 8px; display: inline-flex; margin-right: 4px; }
+  .badge { background: var(--olive-fonce); color: var(--olive-pale); font-family: var(--font-titre); font-weight: 500; font-size: .8rem; padding: 6px 14px; border-radius: 999px; letter-spacing: .05em; }
+  .progress { height: 8px; background: var(--gres-sombre); border-radius: 999px; overflow: hidden; margin-bottom: 18px; }
+  .progress > div { height: 100%; background: linear-gradient(90deg, var(--olive), var(--jaune)); transition: width .5s; }
+  .card { background: var(--gres-sombre); border: 1px solid var(--gres-moyen); border-radius: 18px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,.4); margin-bottom: 16px; }
+
+  /* Zone vidéo en PORTRAIT (9/16), centrée, hauteur limitée à l'écran */
+  .video-zone { position: relative; border-radius: 18px; overflow: hidden; background: var(--gres-fonce); padding: 0; aspect-ratio: 9 / 16; height: min(72vh, 640px); margin: 0 auto; }
+  .video-zone iframe { width: 100%; height: 100%; border: 0; }
+  .video-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--gres-clair); text-align: center; padding: 20px; }
+  .video-placeholder .emoji { font-size: 3rem; }
+
+  h2.instruction { font-size: 1.25rem; font-weight: 700; font-family: var(--font-titre); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 6px; color: var(--tres-clair); }
+  p.sub { color: var(--gres-clair); font-size: .95rem; margin-bottom: 18px; }
+  .status { border-radius: 12px; padding: 14px; margin-bottom: 16px; display: none; }
+  .status.show { display: block; animation: pop .25s ease; }
+  .status.ok { background: rgba(153,152,63,.18); border: 1px solid var(--olive-clair); color: var(--olive-clair); font-weight: 600; }
+  .status.ko { background: rgba(159,23,48,.25); border: 1px solid var(--rouge-clair); color: var(--rouge-clair); font-weight: 600; }
+  #cam { width: 100%; border-radius: 12px; background: #000; display: none; }
+  #cam.active { display: block; }
+  .choices { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+  .choice { width: 100%; text-align: left; padding: 13px 16px; border-radius: 12px; border: 1px solid var(--gres-moyen); background: var(--gres); color: var(--tres-clair); font-size: 1rem; cursor: pointer; transition: background .15s; }
+  .choice:hover:not(:disabled) { background: var(--gres-moyen); }
+  .choice:disabled { cursor: default; }
+  .choice.correct { background: var(--olive-sombre); border-color: var(--olive-clair); }
+  .choice.wrong { background: var(--rouge); border-color: var(--rouge-clair); }
+  .choice.dim { opacity: .5; }
+  .btn { display: inline-block; padding: 12px 22px; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; font-family: var(--font-titre); letter-spacing: .03em; cursor: pointer; color: #fff; transition: filter .15s; margin-top: 14px; }
+  .btn:hover { filter: brightness(1.1); }
+  .btn.green { background: var(--olive); }
+  .btn.blue { background: var(--bleu); }
+  .btn.gray { background: var(--gres); border: 1px solid var(--gres-moyen); }
+  .btn.gold { background: var(--jaune); color: var(--gres-fonce); }
+  .btn-full { display: block; width: 100%; }
+
+  /* Boutons du bas centrés */
+  .actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .actions .btn { margin-top: 14px; }
+
+  .scanline { position: relative; }
+  .scanline::after { content: ""; position: absolute; left: 5%; width: 90%; height: 3px; background: var(--jaune); border-radius: 3px; top: 8px; animation: scan 2s linear infinite; opacity: .9; }
+  @keyframes scan { 0% { top: 8px; } 50% { top: calc(100% - 10px); } 100% { top: 8px; } }
+  @keyframes pop { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .end { text-align: center; }
+  .end .emoji { font-size: 4rem; margin-bottom: 12px; }
+  .end h2 { font-size: 1.8rem; font-family: var(--font-titre); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
+  .end p { color: var(--gres-clair); margin-bottom: 20px; }
+  .footnote { text-align: center; color: var(--gres-clair); font-size: .8rem; margin-top: 8px; }
+
+  /* ---------- Pop-up du plan ---------- */
+  .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+  .modal.open { display: flex; }
+  .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(2px); }
+  .modal-content { position: relative; max-width: min(92vw, 720px); background: var(--gres-sombre); border: 1px solid var(--gres-moyen); border-radius: 18px; padding: 10px; box-shadow: 0 20px 40px rgba(0,0,0,.5); animation: pop .25s ease; }
+  .modal-content img { display: block; max-width: 100%; max-height: 80vh; border-radius: 12px; }
+  .modal-close { position: absolute; top: -14px; right: -14px; width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--gres-moyen); background: var(--rouge); color: #fff; font-size: 1.05rem; font-weight: 700; font-family: var(--font-titre); cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,.4); }
+  .modal-close:hover { filter: brightness(1.15); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>
+	<span class="logo-plate">
+	  <img src="https://puisciences.github.io/couffignal/Logo_Strasbourg_300dpi.jpg" alt="Lycée Couffignal" height="50">
+	</span>
+ &ensp; Escape Couff'
+	</h1>
+    <span class="badge" id="badge"></span>
+  </div>
+  <div class="progress"><div id="bar" style="width:0%"></div></div>
+
+  <!-- Lecteur vidéo (en haut) -->
+  <div class="card video-zone" id="videoZone">
+    <div class="video-placeholder" id="videoPlaceholder">
+      <div class="emoji">🎬</div>
+      <p>La vidéo de l'étape s'affichera ici<br>après le scan du bon QR code.</p>
+    </div>
+  </div>
+
+  <!-- Zone scan + question -->
+  <div class="card" id="quizCard">
+    <h2 class="instruction" id="instruction"></h2>
+    <p class="sub" id="sub"></p>
+
+    <div class="status" id="status"></div>
+
+    <div class="scanline" id="camWrap" style="display:none">
+      <video id="cam" playsinline></video>
+    </div>
+    <button class="btn blue" id="startBtn">📷 Activer la caméra</button>
+    <button class="btn gray" id="stopBtn" style="display:none">⏹ Arrêter la caméra</button>
+
+    <div class="choices" id="choices" style="display:none"></div>
+    <div id="nextWrap"></div>
+  </div>
+
+  <p class="footnote">La caméra reste active uniquement pendant le scan. Aucune image n'est enregistrée.</p>
+
+  <!-- Boutons du bas, centrés -->
+  <div class="actions">
+    <button class="btn blue" id="clean">🔄 Recommencer</button>
+    <button class="btn gold" id="map">🗺️ Plan du lycée</button>
+  </div>
+</div>
+
+<!-- Pop-up plan (hors de .wrap pour survivre à l'écran de fin) -->
+<div class="modal" id="planModal">
+  <div class="modal-backdrop" id="planBackdrop"></div>
+  <div class="modal-content">
+    <button class="modal-close" id="planClose" aria-label="Fermer">✕</button>
+    <img src="https://puisciences.github.io/couffignal/plan.jpg" alt="Plan du lycée Couffignal">
+  </div>
+</div>
+
+<script>
+// ==== Étapes de l'escape game (modifiable) ====
+// "qr"     = contenu EXACT du QR code collé dans la salle
+// "video"  = URL de la vidéo en mode intégration (embed PeerTube)
+// "q"      = la question posée après la vidéo
+// "correct"= position de la bonne réponse (0 = A, 1 = B, ...)
+const STEPS = [
+  {
+    salle: "la salle C115",
+    instruction: "Étape 1 — Scanner le QR code de la salle C115",
+    qr: "http://edurl.fr/iTpj77J5",
+    video: "https://tube-sciences-technologies.apps.education.fr/videos/embed/oST62iJKm9syGaQ7ZWr6NS",
+    q: "En Sciences et Labo (salle C115), quelle est la ville qui a été visitée par les élèves ?",
+    choices: ["Nice", "Paris", "Lyon", "Strasbourg"],
+    correct: 1,
+    hint: "La Tour Eiffel...",
+    success: "🏛️ Direction la salle C315 !",
+  },
+  {
+    salle: "la salle C315",
+    instruction: "Étape 2 — Scanner le QR code de la salle C315",
+    qr: "http://edurl.fr/BTEMsSRQ",
+    video: "https://tube-sciences-technologies.apps.education.fr/videos/embed/tSKtvcfnLhSABmmkH7shBY",
+    q: "L'option NSI est-elle disponible au lycée Couffignal ?",
+    choices: ["Non, seulement en terminale", "Oui, dès la 1ère", "Non, pas du tout", "Oui, mais seulement en seconde"],
+    correct: 1,
+    hint: "On peut la choisir en fin de seconde...",
+    success: "🚀 Direction le bâtiment F (Da Vinci), salle 123 !",
+  },
+  {
+    salle: "le bâtiment F, salle 123",
+    instruction: "Étape 3 — Scanner le QR code du bâtiment F, salle 123",
+    qr: "http://edurl.fr/iTpj77J5",
+    video: "https://tube-sciences-technologies.apps.education.fr/videos/embed/upUSWydnFtxSw2gsT3zu5t",
+    q: "Qui est le plus beau prof de l'option de seconde ?",
+    choices: ["Fred", "Virgile", "Virgile et Fred", "Personne"],
+    correct: 2,
+    hint: "Impossible de choisir entre les deux...",
+    success: "🏆 Escape game terminé. Tu peux rejoindre la salle C69!",
+  },
+];
+// ====================================================
+
+// ==== Plan du lycée (modifiable) ====
+const PLAN_URL = "https://puisciences.github.io/couffignal/plan.jpg";
+// ===================================
+
+const badge = document.getElementById("badge");
+const bar = document.getElementById("bar");
+const videoZone = document.getElementById("videoZone");
+const videoPlaceholder = document.getElementById("videoPlaceholder");
+const instructionEl = document.getElementById("instruction");
+const subEl = document.getElementById("sub");
+const statusEl = document.getElementById("status");
+const cam = document.getElementById("cam");
+const camWrap = document.getElementById("camWrap");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const choicesEl = document.getElementById("choices");
+const nextWrap = document.getElementById("nextWrap");
+const clean = document.getElementById("clean");
+const map = document.getElementById("map");
+const planModal = document.getElementById("planModal");
+const planBackdrop = document.getElementById("planBackdrop");
+const planClose = document.getElementById("planClose");
+
+let step = 0;
+let answered = false;
+let stream = null;
+let scanning = false;
+
+// ---------- Sauvegarde de la progression (localStorage) ----------
+const STORAGE_KEY = "escapeCouffProgress";
+
+function saveState(phase) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ step: step, phase: phase }));
+  } catch (e) {}
+}
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY));
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {}
+}
+
+function keyOf(url) {
+  return url.replace(/\/+$/, "").split("/").pop().toLowerCase();
+}
+
+function isMatch(scanned) {
+  return scanned.trim().toLowerCase().includes(keyOf(STEPS[step].qr));
+}
+
+function showStatus(ok, msg) {
+  statusEl.className = "status show " + (ok ? "ok" : "ko");
+  statusEl.textContent = msg;
+}
+
+// ---------- Pop-up du plan ----------
+function openPlan() {
+  planModal.classList.add("open");
+}
+function closePlan() {
+  planModal.classList.remove("open");
+}
+map.onclick = openPlan;
+planClose.onclick = closePlan;
+planBackdrop.onclick = closePlan;
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") closePlan();
+});
+
+// ---------- Phase 1 : le scan ----------
+function renderScanPhase() {
+  const s = STEPS[step];
+  answered = false;
+  choicesEl.style.display = "none";
+  choicesEl.innerHTML = "";
+  nextWrap.innerHTML = "";
+  startBtn.style.display = "inline-block";
+  badge.textContent = "Étape " + (step + 1) + " / " + STEPS.length;
+  instructionEl.textContent = s.instruction;
+  subEl.textContent = "Scanne le QR code affiché au dessus de la porte de la salle pour débloquer la vidéo et la question.";
+  statusEl.className = "status";
+}
+
+// ---------- Phase 2 : la question ----------
+function renderQuizPhase() {
+  const s = STEPS[step];
+  choicesEl.style.display = "flex";
+  choicesEl.innerHTML = "";
+  s.choices.forEach((c, i) => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.innerHTML = "<b>" + String.fromCharCode(65 + i) + ".</b> " + c;
+    btn.onclick = () => choose(i);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function choose(i) {
+  if (answered) return;
+  answered = true;
+  const s = STEPS[step];
+  const ok = i === s.correct;
+  const buttons = choicesEl.querySelectorAll(".choice");
+  buttons.forEach((b, j) => {
+    b.disabled = true;
+    if (j === s.correct) b.classList.add("correct");
+    else if (j === i) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  if (ok) {
+    showStatus(true, "✅ " + s.success);
+    bar.style.width = ((step + 1) / STEPS.length * 100) + "%";
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "btn green btn-full";
+    nextBtn.textContent = (step + 1 < STEPS.length) ? "Étape suivante →" : "Terminer l'escape game 🎉";
+    nextBtn.onclick = () => {
+      nextWrap.innerHTML = "";
+      step++;
+      if (step < STEPS.length) {
+        const old = videoZone.querySelector("iframe");
+        if (old) old.remove();
+        videoPlaceholder.style.display = "flex";
+        renderScanPhase();
+        saveState("scan");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        endScreen();
+      }
+    };
+    nextWrap.appendChild(nextBtn);
+  } else {
+    showStatus(false, "❌ Faux ! 💡 Indice : " + s.hint);
+    const retry = document.createElement("button");
+    retry.className = "btn gray btn-full";
+    retry.textContent = "↩️ Réessayer";
+    retry.onclick = () => {
+      nextWrap.innerHTML = "";
+      answered = false;
+      buttons.forEach((b) => { b.disabled = false; b.classList.remove("correct", "wrong", "dim"); });
+      statusEl.className = "status";
+    };
+    nextWrap.appendChild(retry);
+  }
+}
+
+// ---------- Caméra ----------
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    cam.srcObject = stream;
+    await cam.play();
+    cam.classList.add("active");
+    camWrap.style.display = "block";
+    startBtn.style.display = "none";
+    stopBtn.style.display = "inline-block";
+    showStatus(true, "🔎 Caméra active — vise le QR code de " + STEPS[step].salle);
+    scanning = true;
+    tick();
+  } catch (e) {
+    showStatus(false, "❌ Impossible d'accéder à la caméra. Vérifie l'autorisation, ou ouvre cette page via un serveur (l'accès caméra peut être bloqué en ouvrant le fichier directement).");
+  }
+}
+
+function stopCamera() {
+  scanning = false;
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  cam.srcObject = null;
+  cam.classList.remove("active");
+  camWrap.style.display = "none";
+  startBtn.style.display = "inline-block";
+  stopBtn.style.display = "none";
+}
+
+const canvas = document.createElement("canvas");
+
+function tick() {
+  if (!scanning) return;
+  if (cam.readyState === cam.HAVE_ENOUGH_DATA) {
+    canvas.width = cam.videoWidth;
+    canvas.height = cam.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(cam, 0, 0, canvas.width, canvas.height);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(img.data, img.width, img.height, { inversionAttempts: "dontInvert" });
+    if (code && code.data) {
+      handleScan(code.data);
+      return;
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function handleScan(data) {
+  if (isMatch(data)) {
+    stopCamera();
+    saveState("quiz"); // progression enregistrée : vidéo + question débloquées
+    const s = STEPS[step];
+    showStatus(true, "✅ QR code reconnu ! Regarde la vidéo puis réponds à la question.");
+
+    // Affiche la vidéo dans le lecteur en haut
+    videoPlaceholder.style.display = "none";
+    const iframe = document.createElement("iframe");
+    iframe.src = s.video + "?autoplay=1";
+    iframe.allow = "fullscreen; autoplay";
+    iframe.allowFullscreen = true;
+    videoZone.appendChild(iframe);
+
+    // Affiche la question
+    instructionEl.textContent = "❓ Question " + (step + 1);
+    subEl.textContent = s.q;
+    renderQuizPhase();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    showStatus(false, "❌ Ce n'est pas le bon QR code ! Cherche " + STEPS[step].salle + ".");
+    setTimeout(() => { if (scanning) tick(); }, 1200);
+  }
+}
+
+function endScreen() {
+  badge.textContent = "";
+  bar.style.width = "100%";
+  clearState(); // cache effacé : l'escape game est terminé
+  document.querySelector(".wrap").innerHTML =
+    '<div class="card end">' +
+    '<div class="emoji">🏆</div>' +
+    "<h2>Escape game terminé !</h2>" +
+	"<p>Tu as trouvé les 3 QR codes, regardé les 3 vidéos et répondu aux 3 questions des options à couffignal. Bravo ! 🎉</p>" +
+    "<p>Pour terminer cet escape game, rempli le fichier suivant : </p>" +
+    '<button class="btn green" onclick="location.reload()">🔄 Recommencer</button>' +
+    "</div>";
+}
+
+// Bouton Recommencer : efface la progression enregistrée puis recharge la page
+clean.onclick = function () {
+  clearState();
+  location.reload();
+};
+
+startBtn.onclick = startCamera;
+stopBtn.onclick = stopCamera;
+
+// ---------- Restauration de la progression après F5 ----------
+function restoreFromCache() {
+  const saved = loadState();
+  if (saved && Number.isInteger(saved.step) && saved.step >= 0 && saved.step < STEPS.length) {
+    step = saved.step;
+    if (saved.phase === "quiz") {
+      // l'étape était déjà débloquée : on remet la vidéo + la question, sans re-scanner
+      const s = STEPS[step];
+      videoPlaceholder.style.display = "none";
+      const iframe = document.createElement("iframe");
+      iframe.src = s.video;
+      iframe.allow = "fullscreen; autoplay";
+      iframe.allowFullscreen = true;
+      videoZone.appendChild(iframe);
+      instructionEl.textContent = "❓ Question " + (step + 1);
+      subEl.textContent = s.q;
+      renderQuizPhase();
+      showStatus(true, "✅ Étape restaurée ! Regarde la vidéo et réponds à la question.");
+    } else {
+      renderScanPhase();
+    }
+  } else {
+    renderScanPhase();
+  }
+}
+
+restoreFromCache();
+</script>
+</body>
+</html>
